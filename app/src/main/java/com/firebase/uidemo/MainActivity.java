@@ -20,7 +20,10 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     com.google.android.material.textfield.TextInputEditText signedInUser;
+    Button databaseUserProfile;
     Button signInWithEmailAndPassword;
+    Button sendMessage;
+    Button listUser;
 
     static final String TAG = "FirebaseUiMain";
 
@@ -49,9 +52,9 @@ public class MainActivity extends AppCompatActivity {
                 if (user != null) {
                     Toast.makeText(MainActivity.this, "User Signed In", Toast.LENGTH_SHORT).show();
                     signedInUser.setText(user.getEmail() + "\nDisplayName: " + user.getDisplayName());
-                    signInWithEmailAndPassword.setEnabled(false);
+                    activeButtonsWhileUserIsSignedIn(true);
                 } else {
-                    signInWithEmailAndPassword.setEnabled(true);
+
                 }
             }
         };
@@ -82,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Button databaseUserProfile = findViewById(R.id.btnMainDatabaseUser);
+        databaseUserProfile = findViewById(R.id.btnMainDatabaseUser);
         databaseUserProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -93,7 +96,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Button listUser = findViewById(R.id.btnMainListUser);
+        sendMessage = findViewById(R.id.btnMainSendMessage);
+        sendMessage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "send a message to another user");
+                // todo first we need to select a receipient, from there we move to ChatActivity
+                Intent intent = new Intent(MainActivity.this, ChatActivity.class);
+                startActivity(intent);
+                //finish();
+            }
+        });
+
+        listUser = findViewById(R.id.btnMainListUser);
         listUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -103,6 +118,12 @@ public class MainActivity extends AppCompatActivity {
                 //finish();
             }
         });
+    }
+
+    private void activeButtonsWhileUserIsSignedIn(boolean isSignedIn) {
+        databaseUserProfile.setEnabled(isSignedIn);
+        sendMessage.setEnabled(isSignedIn);
+        listUser.setEnabled(isSignedIn);
     }
 
     @Override
