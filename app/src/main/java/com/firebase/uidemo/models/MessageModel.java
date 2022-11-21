@@ -13,13 +13,14 @@ public class MessageModel {
     String attachmentId;
     boolean messageRead;
     boolean messageEncrypted;
-    int pubKeySender;
-    int pubKeyReceiver;
+    int pubKeyIdSender;
+    int pubKeyIdReceiver;
+    String pubKeySender;
 
     public MessageModel() {}
 
     // full message constructor
-    public MessageModel(String message, long messageTime, String senderId, String receiverId, String attachmentId, boolean messageRead, boolean messageEncrypted, int pubKeySender, int pubKeyReceiver) {
+    public MessageModel(String message, long messageTime, String senderId, String receiverId, String attachmentId, boolean messageRead, boolean messageEncrypted, int pubKeyIdSender, int pubKeyIdReceiver, String pubKeySender) {
         this.message = message;
         this.messageTime = messageTime;
         this.senderId = senderId;
@@ -27,8 +28,9 @@ public class MessageModel {
         this.attachmentId = attachmentId;
         this.messageRead = messageRead;
         this.messageEncrypted = messageEncrypted;
+        this.pubKeyIdSender = pubKeyIdSender;
+        this.pubKeyIdReceiver = pubKeyIdReceiver;
         this.pubKeySender = pubKeySender;
-        this.pubKeyReceiver = pubKeyReceiver;
     }
 
     // constructor for beginner chats (unencrypted, no attachment)
@@ -40,8 +42,9 @@ public class MessageModel {
         this.attachmentId = "";
         this.messageRead = false;
         this.messageEncrypted = false;
-        this.pubKeySender = 0;
-        this.pubKeyReceiver = 0;
+        this.pubKeyIdSender = 0;
+        this.pubKeyIdReceiver = 0;
+        this.pubKeySender = "";
     }
 
     public Map<String, Object> toMap() {
@@ -101,20 +104,20 @@ public class MessageModel {
         this.messageRead = messageRead;
     }
 
-    public int getPubKeySender() {
-        return pubKeySender;
+    public int getPubKeyIdSender() {
+        return pubKeyIdSender;
     }
 
-    public void setPubKeySender(int pubKeySender) {
-        this.pubKeySender = pubKeySender;
+    public void setPubKeyIdSender(int pubKeyIdSender) {
+        this.pubKeyIdSender = pubKeyIdSender;
     }
 
-    public int getPubKeyReceiver() {
-        return pubKeyReceiver;
+    public int getPubKeyIdReceiver() {
+        return pubKeyIdReceiver;
     }
 
-    public void setPubKeyReceiver(int pubKeyReceiver) {
-        this.pubKeyReceiver = pubKeyReceiver;
+    public void setPubKeyIdReceiver(int pubKeyReceiver) {
+        this.pubKeyIdReceiver = pubKeyIdReceiver;
     }
 
     public String getAttachmentId() {
@@ -123,5 +126,13 @@ public class MessageModel {
 
     public void setAttachmentId(String attachmentId) {
         this.attachmentId = attachmentId;
+    }
+
+    public String getPubKeySender() {
+        return pubKeySender;
+    }
+
+    public void setPubKeySender(String pubKeySender) {
+        this.pubKeySender = pubKeySender;
     }
 }

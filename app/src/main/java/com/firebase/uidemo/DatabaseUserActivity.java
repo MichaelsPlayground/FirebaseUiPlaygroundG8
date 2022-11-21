@@ -219,17 +219,7 @@ public class DatabaseUserActivity extends AppCompatActivity {
                 userData += "\nno photo url available";
             }
             signedInUser.setText(userData);
-            /*
-            mBinding.status.setText(getString(R.string.emailpassword_status_fmt,
-                    user.getEmail(), user.isEmailVerified()));
-            mBinding.detail.setText(getString(R.string.firebase_status_fmt, user.getUid()));
 
-            mBinding.emailPasswordButtons.setVisibility(View.GONE);
-            mBinding.emailPasswordFields.setVisibility(View.GONE);
-            mBinding.signedInButtons.setVisibility(View.VISIBLE);
-
-
-             */
             if (user.isEmailVerified()) {
 //                mBinding.verifyEmailButton.setVisibility(View.GONE);
             } else {
@@ -237,14 +227,7 @@ public class DatabaseUserActivity extends AppCompatActivity {
             }
         } else {
             signedInUser.setText(null);
- /*
-            mBinding.detail.setText(null);
 
-            mBinding.emailPasswordButtons.setVisibility(View.VISIBLE);
-            mBinding.emailPasswordFields.setVisibility(View.VISIBLE);
-            mBinding.signedInButtons.setVisibility(View.GONE);
-
-  */
         }
     }
 

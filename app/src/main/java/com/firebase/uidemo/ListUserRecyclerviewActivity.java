@@ -1,43 +1,30 @@
 package com.firebase.uidemo;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.firebase.ui.database.FirebaseListAdapter;
-import com.firebase.ui.database.FirebaseListOptions;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.firebase.uidemo.models.UserModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
-public class ListUserActivity extends AppCompatActivity {
+public class ListUserRecyclerviewActivity extends AppCompatActivity implements ItemClickListener {
     // https://www.geeksforgeeks.org/how-to-populate-recyclerview-with-firebase-data-using-firebaseui-in-android-studio/
     com.google.android.material.textfield.TextInputEditText signedInUser;
 
@@ -47,20 +34,18 @@ public class ListUserActivity extends AppCompatActivity {
 
     private DatabaseReference mDatabase;
     private FirebaseAuth mFirebaseAuth;
-
-    ListView userListView;
-    FirebaseListAdapter<UserModel> listAdapter;
-    //UserModelAdapter adapter; // Create Object of the Adapter class
+    private RecyclerView recyclerView;
+    //personAdapter adapter; // Create Object of the Adapter class
+    UserModelAdapter adapter; // Create Object of the Adapter class
     ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list_user);
+        setContentView(R.layout.activity_list_user_recyclerview);
 
         signedInUser = findViewById(R.id.etListUserSignedInUser);
         progressBar = findViewById(R.id.pbListUser);
-        userListView = findViewById(R.id.lvListUser);
 
         // Initialize Firebase Auth
         mFirebaseAuth = FirebaseAuth.getInstance();
@@ -76,55 +61,40 @@ public class ListUserActivity extends AppCompatActivity {
         mDatabase = FirebaseDatabase.getInstance().getReference();
         //DatabaseReference personsDatabase = mDatabase.child("persons");
         DatabaseReference usersDatabase = mDatabase.child("users");
+        recyclerView = findViewById(R.id.rvListUser);
+        // To display the Recycler view linearlayout
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        List<String> arrayList = new ArrayList<>();
-        List<String> uidList = new ArrayList<>();
-        List<String> emailList = new ArrayList<>();
-        List<String> displayNameList = new ArrayList<>();
-
-        usersDatabase.addValueEventListener(new ValueEventListener() {
-
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-                // this is the new way
-                FirebaseListOptions<UserModel> listAdapterOptions;
-                listAdapterOptions = new FirebaseListOptions.Builder<UserModel>()
-                        .setLayout(android.R.layout.simple_list_item_1)
-                        .setQuery(usersDatabase, UserModel.class)
-                        .build();
-
-
-                listAdapter = new FirebaseListAdapter<UserModel>(listAdapterOptions) {
-                    @Override
-                    protected void populateView(@NonNull View v, @NonNull UserModel model, int position) {
-                        String data = model.getUserMail() + " " + model.getUserId();
-                        System.out.println("* data: " + data);
-                        //arrayList.add(data);
-                        //TextView textView = findViewById(android.R.layout.two_line_list_item);
-                        //textView.setText(data);
-                        ((TextView) v.findViewById(android.R.id.text1)).setText(data);
-                        listAdapter.notifyDataSetChanged();
-                        uidList.add(dataSnapshot.getKey());
-                    }
-                };
-
-                userListView.setAdapter(listAdapter);
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
+        // It is a class provide by the FirebaseUI to make a
+        // query in the database to fetch appropriate data
+        FirebaseRecyclerOptions<UserModel> options
+                = new FirebaseRecyclerOptions.Builder<UserModel>()
+                .setQuery(usersDatabase, UserModel.class)
+                .build();
+        // Connecting object of required Adapter class to
+        // the Adapter class itself
+        adapter = new UserModelAdapter(options);
+        adapter.setClickListener(this);
+        /*
+        // code from tutorial
+        // It is a class provide by the FirebaseUI to make a
+        // query in the database to fetch appropriate data
+        FirebaseRecyclerOptions<person> options
+                = new FirebaseRecyclerOptions.Builder<person>()
+                .setQuery(personsDatabase, person.class)
+                .build();
+        // Connecting object of required Adapter class to
+        // the Adapter class itself
+        adapter = new personAdapter(options);
+        */
+        // Connecting Adapter class with the Recycler view*/
+        recyclerView.setAdapter(adapter);
 
         Button backToMain = findViewById(R.id.btnListUserToMain);
         backToMain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(ListUserActivity.this, MainActivity.class);
+                Intent intent = new Intent(ListUserRecyclerviewActivity.this, MainActivity.class);
                 startActivity(intent);
                 finish();
             }
@@ -134,30 +104,13 @@ public class ListUserActivity extends AppCompatActivity {
         listUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                listAdapter.startListening();
+                // todo start listening only if a user is signed in
+                adapter.startListening();
             }
         });
 
-        userListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                String uidSelected = uidList.get(position);
-                String emailSelected = emailList.get(position);
-                String displayNameSelected = displayNameList.get(position);
-                System.out.println("*** userListView clicked on pos: " + position + " id: " + uidSelected);
-                /*
-                Intent intent = new Intent(ListUserActivity.this, SendMessageActivity.class);
-                intent.putExtra("UID", uidSelected);
-                intent.putExtra("EMAIL", emailSelected);
-                intent.putExtra("DISPLAYNAME", displayNameSelected);
-                startActivity(intent);
-                finish();
-
-                 */
-            }
-        });
+        // note: the onClick listener is implemented in UserModelAdapter
     }
-
 
     @Override
     public void onStart() {
@@ -169,7 +122,7 @@ public class ListUserActivity extends AppCompatActivity {
         } else {
             signedInUser.setText("no user is signed in");
         }
-        //listAdapter.startListening();
+        //adapter.startListening();
     }
 
     // Function to tell the app to stop getting
@@ -177,7 +130,13 @@ public class ListUserActivity extends AppCompatActivity {
     @Override protected void onStop()
     {
         super.onStop();
-        listAdapter.stopListening();
+        adapter.stopListening();
+    }
+
+    // called when clicking on recyclerview
+    @Override
+    public void onClick(View view, int position) {
+        Log.i(TAG, "recyclerview clicked on position: " + position);
     }
 
 
