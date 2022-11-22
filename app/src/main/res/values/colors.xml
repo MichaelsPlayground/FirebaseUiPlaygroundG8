@@ -13,4 +13,6 @@
     <color name="grey_300">#EEEEEE</color>
     <color name="blue_300">#B2E7FF</color>
     <color name="red_300">#FFB2B2</color>
+    <color name="material_gray_300">#E0E0E0</color>
+    <color name="material_green_300">#AED581</color>
 </resources>

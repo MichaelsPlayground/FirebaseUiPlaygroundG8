@@ -102,7 +102,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Log.d(TAG, "send a message to another user");
                 // todo first we need to select a receipient, from there we move to ChatActivity
-                Intent intent = new Intent(MainActivity.this, ChatActivity.class);
+                Intent intent = new Intent(MainActivity.this, ChatActivityOrg.class);
+                //Intent intent = new Intent(MainActivity.this, RealtimeDbChatActivity.class);
                 startActivity(intent);
                 //finish();
             }

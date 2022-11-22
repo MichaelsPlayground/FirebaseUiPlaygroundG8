@@ -1,37 +1,28 @@
 package com.firebase.uidemo;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.firebase.ui.database.FirebaseListAdapter;
 import com.firebase.ui.database.FirebaseListOptions;
-import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.firebase.uidemo.models.UserModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +41,6 @@ public class ListUserActivity extends AppCompatActivity {
 
     ListView userListView;
     FirebaseListAdapter<UserModel> listAdapter;
-    //UserModelAdapter adapter; // Create Object of the Adapter class
     ProgressBar progressBar;
 
     @Override
@@ -74,19 +64,36 @@ public class ListUserActivity extends AppCompatActivity {
         // Create a instance of the database and get
         // its reference
         mDatabase = FirebaseDatabase.getInstance().getReference();
-        //DatabaseReference personsDatabase = mDatabase.child("persons");
         DatabaseReference usersDatabase = mDatabase.child("users");
+        usersDatabase.keepSynced(true);
 
-        List<String> arrayList = new ArrayList<>();
-        List<String> uidList = new ArrayList<>();
         List<String> emailList = new ArrayList<>();
         List<String> displayNameList = new ArrayList<>();
 
-        usersDatabase.addValueEventListener(new ValueEventListener() {
+        // this is the new way
+        FirebaseListOptions<UserModel> listAdapterOptions;
+        listAdapterOptions = new FirebaseListOptions.Builder<UserModel>()
+                .setLayout(android.R.layout.simple_list_item_1)
+                .setQuery(usersDatabase, UserModel.class)
+                .build();
 
+        listAdapter = new FirebaseListAdapter<UserModel>(listAdapterOptions) {
+            @Override
+            protected void populateView(@NonNull View v, @NonNull UserModel model, int position) {
+                String email = model.getUserMail();
+                String displayName = model.getUserName();
+                emailList.add(email);
+                displayNameList.add(displayName);
+                ((TextView) v.findViewById(android.R.id.text1)).setText(email);
+                listAdapter.notifyDataSetChanged();
+            }
+        };
+        userListView.setAdapter(listAdapter);
+
+        /*
+        usersDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
                 // this is the new way
                 FirebaseListOptions<UserModel> listAdapterOptions;
                 listAdapterOptions = new FirebaseListOptions.Builder<UserModel>()
@@ -94,23 +101,18 @@ public class ListUserActivity extends AppCompatActivity {
                         .setQuery(usersDatabase, UserModel.class)
                         .build();
 
-
                 listAdapter = new FirebaseListAdapter<UserModel>(listAdapterOptions) {
                     @Override
                     protected void populateView(@NonNull View v, @NonNull UserModel model, int position) {
-                        String data = model.getUserMail() + " " + model.getUserId();
-                        System.out.println("* data: " + data);
-                        //arrayList.add(data);
-                        //TextView textView = findViewById(android.R.layout.two_line_list_item);
-                        //textView.setText(data);
-                        ((TextView) v.findViewById(android.R.id.text1)).setText(data);
+                        String email = model.getUserMail();
+                        String displayName = model.getUserName();
+                        emailList.add(email);
+                        displayNameList.add(displayName);
+                        ((TextView) v.findViewById(android.R.id.text1)).setText(email);
                         listAdapter.notifyDataSetChanged();
-                        uidList.add(dataSnapshot.getKey());
                     }
                 };
-
                 userListView.setAdapter(listAdapter);
-
             }
 
             @Override
@@ -119,6 +121,7 @@ public class ListUserActivity extends AppCompatActivity {
             }
         });
 
+         */
 
         Button backToMain = findViewById(R.id.btnListUserToMain);
         backToMain.setOnClickListener(new View.OnClickListener() {
@@ -141,19 +144,14 @@ public class ListUserActivity extends AppCompatActivity {
         userListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                String uidSelected = uidList.get(position);
-                String emailSelected = emailList.get(position);
-                String displayNameSelected = displayNameList.get(position);
-                System.out.println("*** userListView clicked on pos: " + position + " id: " + uidSelected);
-                /*
-                Intent intent = new Intent(ListUserActivity.this, SendMessageActivity.class);
-                intent.putExtra("UID", uidSelected);
-                intent.putExtra("EMAIL", emailSelected);
-                intent.putExtra("DISPLAYNAME", displayNameSelected);
+                System.out.println("*** userListView clicked on pos: " + position);
+                System.out.println("listAdapter.getRef(position): " + listAdapter.getRef(position).getKey());
+                Intent intent = new Intent(ListUserActivity.this, ChatActivityOrg.class);
+                intent.putExtra("UID", listAdapter.getRef(position).getKey());
+                intent.putExtra("EMAIL", emailList.get(position));
+                intent.putExtra("DISPLAYNAME", displayNameList.get(position));
                 startActivity(intent);
                 finish();
-
-                 */
             }
         });
     }
@@ -166,10 +164,10 @@ public class ListUserActivity extends AppCompatActivity {
         FirebaseUser currentUser = mFirebaseAuth.getCurrentUser();
         if (currentUser != null) {
             reload();
+            listAdapter.startListening();
         } else {
             signedInUser.setText("no user is signed in");
         }
-        //listAdapter.startListening();
     }
 
     // Function to tell the app to stop getting
