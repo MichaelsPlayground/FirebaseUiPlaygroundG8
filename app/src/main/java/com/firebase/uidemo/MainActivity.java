@@ -13,6 +13,7 @@ import android.widget.Toast;
 import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Arrays;
 import java.util.List;
@@ -44,6 +45,9 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize Firebase Auth
         mFirebaseAuth = FirebaseAuth.getInstance();
+        // set the persistance first
+        //FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -102,8 +106,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Log.d(TAG, "send a message to another user");
                 // todo first we need to select a receipient, from there we move to ChatActivity
-                Intent intent = new Intent(MainActivity.this, ChatActivityOrg.class);
-                //Intent intent = new Intent(MainActivity.this, RealtimeDbChatActivity.class);
+                Intent intent = new Intent(MainActivity.this, ChatActivity.class);
                 startActivity(intent);
                 //finish();
             }

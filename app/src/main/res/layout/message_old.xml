@@ -8,11 +8,20 @@
     android:paddingTop="5dp"
     android:paddingBottom="5dp">
 
+    <FrameLayout
+        android:id="@+id/left_arrow"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="2dp"
+        android:layout_marginLeft="2dp"
+        android:background="@drawable/ic_chat_message_arrow"
+        android:rotation="180" />
+
+
     <LinearLayout
         android:id="@+id/message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
         android:layout_marginLeft="26dp"
         android:layout_marginRight="26dp"
         android:background="@drawable/ic_chat_message_background"
@@ -37,5 +46,17 @@
             tools:text="Some User" />
 
     </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/right_arrow"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignEnd="@+id/message"
+        android:layout_marginEnd="25dp"
+        android:layout_alignRight="@+id/message"
+        android:layout_marginRight="25dp"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/ic_chat_message_arrow"
+        android:rotation="180" />
 
 </RelativeLayout>

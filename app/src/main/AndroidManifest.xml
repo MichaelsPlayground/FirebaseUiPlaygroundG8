@@ -13,14 +13,7 @@
         android:theme="@style/Theme.FirebaseUiPlayground"
         tools:targetApi="31">
         <activity
-            android:name=".ChatActivityOrg"
-            android:exported="false">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
-        <activity
-            android:name=".RealtimeDbChatActivity"
+            android:name=".ChatActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"

@@ -144,9 +144,9 @@ public class ListUserActivity extends AppCompatActivity {
         userListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                System.out.println("*** userListView clicked on pos: " + position);
+                Log.i(TAG, "userListView clicked on pos: " + position);
                 System.out.println("listAdapter.getRef(position): " + listAdapter.getRef(position).getKey());
-                Intent intent = new Intent(ListUserActivity.this, ChatActivityOrg.class);
+                Intent intent = new Intent(ListUserActivity.this, ChatActivity.class);
                 intent.putExtra("UID", listAdapter.getRef(position).getKey());
                 intent.putExtra("EMAIL", emailList.get(position));
                 intent.putExtra("DISPLAYNAME", displayNameList.get(position));
@@ -155,7 +155,6 @@ public class ListUserActivity extends AppCompatActivity {
             }
         });
     }
-
 
     @Override
     public void onStart() {

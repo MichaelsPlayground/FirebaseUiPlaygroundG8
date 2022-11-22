@@ -3,13 +3,10 @@ package com.firebase.uidemo.models;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.firebase.uidemo.AbstractChat;
-import com.firebase.uidemo.AbstractMessage;
-
 import java.util.HashMap;
 import java.util.Map;
 
-public class MessageModel extends AbstractMessage {
+public class MessageModel {
     // MessageModel(String message, String senderId, long messageTime, String receiverId, String attachmentId, boolean messageRead, boolean messageEncrypted, int pubKeySender, int pubKeyReceiver
 
     String message;
@@ -70,35 +67,12 @@ public class MessageModel extends AbstractMessage {
         this.senderId = senderId;
     }
 
-    @Nullable
-    @Override
-    public String getName() {
-        return null;
-    }
-
-    @Override
-    public void setName(@Nullable String name) {
-
-    }
-
     public String getMessage() {
         return message;
     }
 
     public void setMessage(String message) {
         this.message = message;
-    }
-
-    @NonNull
-    @Override
-    public String getUid() {
-        // todo delete this getter/setter and variable
-        return this.senderId;
-    }
-
-    @Override
-    public void setUid(@NonNull String uid) {
-        // todo delete this getter/setter and variable
     }
 
     @Override
