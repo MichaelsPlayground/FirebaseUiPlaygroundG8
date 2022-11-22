@@ -93,7 +93,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
 
         // todo: read the users details before setting the room (UID + userDisplayName)
 
-        /*
+
         // todo get the real uids, remove these line
         if (authUserId.equals("QLawxZmT98g276Om5xeeMQd6fco2")) {
             receiveUserId = "wxEMT5hSLfU18HrXXYBWiPAsYgC3";
@@ -104,7 +104,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
             receiveUserId = "QLawxZmT98g276Om5xeeMQd6fco2";
         }
 
-         */
+
 
         // get the roomId by comparing 2 UID strings
         roomId = getRoomId(authUserId, receiveUserId);
