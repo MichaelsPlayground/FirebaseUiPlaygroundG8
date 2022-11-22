@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
     Button databaseUserProfile;
     Button signInWithEmailAndPassword;
     Button sendMessage;
+    Button uploadImage;
     Button listUser;
 
     static final String TAG = "FirebaseUiMain";
@@ -112,6 +113,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        uploadImage = findViewById(R.id.btnMainUploadImage);
+        uploadImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "upload an image to Storage");
+                Intent intent = new Intent(MainActivity.this, UploadImageActivity.class);
+                startActivity(intent);
+                //finish();
+            }
+        });
+
         listUser = findViewById(R.id.btnMainListUser);
         listUser.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -127,6 +139,7 @@ public class MainActivity extends AppCompatActivity {
     private void activeButtonsWhileUserIsSignedIn(boolean isSignedIn) {
         databaseUserProfile.setEnabled(isSignedIn);
         sendMessage.setEnabled(isSignedIn);
+        uploadImage.setEnabled(isSignedIn);
         listUser.setEnabled(isSignedIn);
     }
 

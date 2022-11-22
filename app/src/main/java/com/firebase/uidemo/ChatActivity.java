@@ -17,10 +17,12 @@ import android.widget.Toast;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.firebase.uidemo.models.MessageModel;
+import com.firebase.uidemo.models.UserModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
@@ -70,6 +72,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         // set the persistance first
         //FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         //FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        loadSignedInUserData(mFirebaseAuth.getCurrentUser().getUid());
 
         // todo read intent data
         Intent intent = getIntent();
@@ -91,9 +94,9 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         //receiveUser.setText(receiveUserString);
         Log.i(TAG, "receiveUser: " + receiveUserString);
 
-        // todo: read the users details before setting the room (UID + userDisplayName)
-
-
+        // todo: read the user details before setting the room (UID + userDisplayName)
+        // todo we need to load the authUser data before setting the roomId
+/*
         // todo get the real uids, remove these line
         if (authUserId.equals("QLawxZmT98g276Om5xeeMQd6fco2")) {
             receiveUserId = "wxEMT5hSLfU18HrXXYBWiPAsYgC3";
@@ -103,9 +106,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
             authUserId = "wxEMT5hSLfU18HrXXYBWiPAsYgC3";
             receiveUserId = "QLawxZmT98g276Om5xeeMQd6fco2";
         }
-
-
-
+*/
         // get the roomId by comparing 2 UID strings
         roomId = getRoomId(authUserId, receiveUserId);
         String conversationString = "chat between " + authUserId + " (" + authDisplayName + ")"
@@ -114,9 +115,6 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         header.setText(conversationString);
         Log.i(TAG, conversationString);
 
-
-
-        // todo change to messages/roomId
         sMessageQuery = FirebaseDatabase.getInstance().getReference()
                 .child("messages")
                 .child(roomId)
@@ -130,6 +128,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         //mDatabase = FirebaseDatabase.getInstance("https://fir-playground-1856e-default-rtdb.europe-west1.firebasedatabase.app/").getReference();
         // the following can be used if the database server location is us
         //mDatabase = FirebaseDatabase.getInstance().getReference();
+        // see loadSignedInUserData as we use a new instance there
 
         // Create a instance of the database and get
         // its reference
@@ -249,8 +248,10 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
 
         if (isSignedIn()) {
             attachRecyclerViewAdapter();
+            authUserEmail = mFirebaseAuth.getCurrentUser().getEmail();
+
         } else {
-            Toast.makeText(this, "signing_in", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "you need to sign in before chatting", Toast.LENGTH_SHORT).show();
             //auth.signInAnonymously().addOnCompleteListener(new SignInResultNotifier(this));
         }
     }
@@ -274,6 +275,50 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
 
     private boolean isSignedIn() {
         return FirebaseAuth.getInstance().getCurrentUser() != null;
+    }
+
+    private void loadSignedInUserData(String mAuthUserId) {
+        if (!mAuthUserId.equals("")) {
+            DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+            mDatabase.child("users").child(mAuthUserId).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DataSnapshot> task) {
+                    //hideProgressBar();
+                    if (!task.isSuccessful()) {
+                        Log.e(TAG, "Error getting data", task.getException());
+                    } else {
+                        // check for a null value means no user data were saved before
+                        UserModel userModel = task.getResult().getValue(UserModel.class);
+                        Log.i(TAG, String.valueOf(userModel));
+                        if (userModel == null) {
+                            Log.i(TAG, "userModel is null, show message");
+                            /*
+                            warningNoData.setVisibility(View.VISIBLE);
+                            // get data from user
+                            userId.setText(authUserId);
+                            userEmail.setText(authUserEmail);
+                            userName.setText(usernameFromEmail(authUserEmail));
+                            userPublicKey.setText("not in use");
+                            userPhotoUrl.setText(authPhotoUrl);
+                             */
+                        } else {
+                            Log.i(TAG, "userModel email: " + userModel.getUserMail());
+                            //warningNoData.setVisibility(View.GONE);
+                            // get data from user
+                            //userId.setText(authUserId);
+                            authUserId = mAuthUserId;
+                            authUserEmail = userModel.getUserMail();
+                            authDisplayName = userModel.getUserName();
+                        }
+                    }
+                }
+            });
+        } else {
+            Toast.makeText(getApplicationContext(),
+                    "sign in a user before loading",
+                    Toast.LENGTH_SHORT).show();
+            //hideProgressBar();
+        }
     }
 /*
     @NonNull
