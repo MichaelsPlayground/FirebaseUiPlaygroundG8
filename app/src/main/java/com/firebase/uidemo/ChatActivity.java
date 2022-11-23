@@ -44,6 +44,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
     static final String TAG = "Chat";
 
     private DatabaseReference mDatabaseReference;
+    private DatabaseReference messagesDatabase;
     private FirebaseAuth mFirebaseAuth;
     FirebaseRecyclerAdapter firebaseRecyclerAdapter;
 
@@ -57,7 +58,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat_org);
+        setContentView(R.layout.activity_chat);
 
         header = findViewById(R.id.tvChatHeader);
         edtMessageLayout = findViewById(R.id.etChatMessageLayout);
@@ -66,6 +67,9 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
 
         messagesList.setHasFixedSize(true);
         messagesList.setLayoutManager(new LinearLayoutManager(this));
+
+        // start with a disabled ui
+        enableUiOnSignIn(false);
 
         // Initialize Firebase Auth
         mFirebaseAuth = FirebaseAuth.getInstance();
@@ -79,6 +83,8 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         receiveUserId = intent.getStringExtra("UID");
         if (receiveUserId != null) {
             Log.i(TAG, "selectedUid: " + receiveUserId);
+        } else {
+            receiveUserId = "";
         }
         receiveUserEmail = intent.getStringExtra("EMAIL");
         if (receiveUserEmail != null) {
@@ -107,13 +113,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
             receiveUserId = "QLawxZmT98g276Om5xeeMQd6fco2";
         }
 */
-        // get the roomId by comparing 2 UID strings
-        roomId = getRoomId(authUserId, receiveUserId);
-        String conversationString = "chat between " + authUserId + " (" + authDisplayName + ")"
-                + " and " + receiveUserId + " (" + receiveUserDisplayName + ")"
-                + " in room " + roomId;
-        header.setText(conversationString);
-        Log.i(TAG, conversationString);
+
 
         sMessageQuery = FirebaseDatabase.getInstance().getReference()
                 .child("messages")
@@ -121,7 +121,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
                 .limitToLast(50);
 
         // Initialize Firebase Auth
-        mFirebaseAuth = FirebaseAuth.getInstance();
+        // mFirebaseAuth = FirebaseAuth.getInstance();
         // Initialize Firebase Database
         // https://fir-playground-1856e-default-rtdb.europe-west1.firebasedatabase.app/
         // if the database location is not us we need to use the reference:
@@ -134,7 +134,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         // its reference
         //mDatabaseReference = FirebaseDatabase.getInstance().getReference();
         mDatabaseReference = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference messagesDatabase = mDatabaseReference.child("messages");
+        messagesDatabase = mDatabaseReference.child("messages");
         messagesDatabase.keepSynced(true);
 
         edtMessageLayout.setEndIconOnClickListener(new View.OnClickListener() {
@@ -159,7 +159,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
                 edtMessage.setText("");
             }
         });
-
+/*
         // get the last 50 messages from database
         // On the main screen of your app, you may want to show the 50 most recent chat messages.
         // With Firebase you would use the following query:
@@ -193,7 +193,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
                 holder.bind(model);
             }
         };
-
+*/
 
         // id klaus zwang: hguE3YZEUfhrVTGi28wDHrOhDu83
         // id mf:          wxEMT5hSLfU18HrXXYBWiPAsYgC3
@@ -221,20 +221,34 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mFirebaseAuth.getCurrentUser();
         if(currentUser != null){
-            attachRecyclerViewAdapter();
-            reload();
+            if (!receiveUserId.equals("")) {
+                Log.i(TAG, "onStart prepare database for chat");
+                reload();
+                enableUiOnSignIn(true);
+                setDatabaseForRoom(currentUser.getUid(), receiveUserId);
+                firebaseRecyclerAdapter.startListening();
+                attachRecyclerViewAdapter();
+            } else {
+                header.setText("you need to select a receiveUser first");
+                Log.i(TAG, "you need to select a receiveUser first");
+            }
         } else {
             //signedInUser.setText("no user is signed in");
             authUserId = "";
+            enableUiOnSignIn(false);
+            firebaseRecyclerAdapter.stopListening();
         }
-        firebaseRecyclerAdapter.startListening();
+        // startListening begins when a user is logged in
+        //firebaseRecyclerAdapter.startListening();
         FirebaseAuth.getInstance().addAuthStateListener(this);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        firebaseRecyclerAdapter.stopListening();
+        if (firebaseRecyclerAdapter != null) {
+            firebaseRecyclerAdapter.stopListening();
+        }
         FirebaseAuth.getInstance().removeAuthStateListener(this);
     }
 
@@ -247,7 +261,9 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         //mBinding.messageEdit.setEnabled(isSignedIn());
 
         if (isSignedIn()) {
-            attachRecyclerViewAdapter();
+            // run attachRecyclerViewAdapter(); after the room was set
+            //attachRecyclerViewAdapter();
+            authUserId = mFirebaseAuth.getCurrentUser().getUid();
             authUserEmail = mFirebaseAuth.getCurrentUser().getEmail();
 
         } else {
@@ -259,18 +275,22 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
     private void attachRecyclerViewAdapter() {
         //final RecyclerView.Adapter adapter = newAdapter();
         final RecyclerView.Adapter adapter = firebaseRecyclerAdapter;
+        if (adapter != null) {
+            Log.i(TAG, "attachRecyclerViewAdapter");
+            // Scroll to bottom on new messages
+            adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+                @Override
+                public void onItemRangeInserted(int positionStart, int itemCount) {
+                    //mBinding.messagesList.smoothScrollToPosition(adapter.getItemCount());
+                    messagesList.smoothScrollToPosition(adapter.getItemCount());
+                }
+            });
 
-        // Scroll to bottom on new messages
-        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-            @Override
-            public void onItemRangeInserted(int positionStart, int itemCount) {
-                //mBinding.messagesList.smoothScrollToPosition(adapter.getItemCount());
-                messagesList.smoothScrollToPosition(adapter.getItemCount());
-            }
-        });
-
-        //mBinding.messagesList.setAdapter(adapter);
-        messagesList.setAdapter(adapter);
+            //mBinding.messagesList.setAdapter(adapter);
+            messagesList.setAdapter(adapter);
+        } else {
+            Log.i(TAG, "attachRecyclerViewAdapter NOT set, firebaseRecyclerAdapter is null");
+        }
     }
 
     private boolean isSignedIn() {
@@ -319,6 +339,53 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
                     Toast.LENGTH_SHORT).show();
             //hideProgressBar();
         }
+    }
+
+    // generates the room id and prepares for the querry
+    private void setDatabaseForRoom(String ownUid, String receiverUid) {
+        // get the roomId by comparing 2 UID strings
+        roomId = getRoomId(ownUid, receiverUid);
+        String conversationString = "chat between " + ownUid + " (" + authDisplayName + ")"
+                + " and " + receiveUserId + " (" + receiveUserDisplayName + ")"
+                + " in room " + roomId;
+        header.setText(conversationString);
+        Log.i(TAG, conversationString);
+
+        // get the last 50 messages from database
+        // On the main screen of your app, you may want to show the 50 most recent chat messages.
+        // With Firebase you would use the following query:
+        Query query = messagesDatabase
+                .child(roomId);
+        //.limitToLast(10); // show the last 10 messages
+        //.limitToLast(50); // show the last 50 messages
+        // The FirebaseRecyclerAdapter binds a Query to a RecyclerView. When data is added, removed,
+        // or changed these updates are automatically applied to your UI in real time.
+        // First, configure the adapter by building FirebaseRecyclerOptions. In this case we will
+        // continue with our chat example:
+        FirebaseRecyclerOptions<MessageModel> options =
+                new FirebaseRecyclerOptions.Builder<MessageModel>()
+                        .setQuery(query, MessageModel.class)
+                        .build();
+        // Next create the FirebaseRecyclerAdapter object. You should already have a ViewHolder subclass
+        // for displaying each item. In this case we will use a custom ChatHolder class:
+        firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<MessageModel, MessageHolder>(options) {
+            @Override
+            public MessageHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                // Create a new instance of the ViewHolder, in this case we are using a custom
+                // layout called R.layout.message for each item
+                View view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.message, parent, false);
+                return new MessageHolder(view);
+            }
+
+            @Override
+            protected void onBindViewHolder(MessageHolder holder, int position, MessageModel model) {
+                // Bind the Chat object to the ChatHolder
+                holder.bind(model);
+            }
+        };
+
+
     }
 /*
     @NonNull
@@ -390,6 +457,15 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         } else {
             //signedInUser.setText(null);
             authUserId = "";
+        }
+    }
+
+    private void enableUiOnSignIn(boolean userIsSignedIn) {
+        if (!userIsSignedIn) {
+            header.setText("you need to be signed in before starting a chat");
+            edtMessageLayout.setEnabled(userIsSignedIn);
+        } else {
+            edtMessageLayout.setEnabled(userIsSignedIn);
         }
     }
 
