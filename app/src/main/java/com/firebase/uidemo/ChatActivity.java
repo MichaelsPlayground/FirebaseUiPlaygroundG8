@@ -37,7 +37,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
     com.google.android.material.textfield.TextInputLayout edtMessageLayout;
     RecyclerView messagesList;
 
-    private static String authUserId = "", authUserEmail, authDisplayName, authPhotoUrl;
+    private static String authUserId = "", authUserEmail, authDisplayName;
     private static String receiveUserId = "", receiveUserEmail = "", receiveUserDisplayName = "";
     private static String roomId = "";
 
@@ -48,11 +48,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
     private FirebaseAuth mFirebaseAuth;
     FirebaseRecyclerAdapter firebaseRecyclerAdapter;
 
-    /**
-     * Get the last 50 chat messages.
-     */
     @NonNull
-    //protected final Query sChatQuery =  FirebaseDatabase.getInstance().getReference().child("chats").limitToLast(50);
     protected Query sMessageQuery; //=  FirebaseDatabase.getInstance().getReference().child("chats").limitToLast(50);
 
     @Override
@@ -78,7 +74,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         //FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         loadSignedInUserData(mFirebaseAuth.getCurrentUser().getUid());
 
-        // todo read intent data
+        // read data received from ListUserOnDatabase
         Intent intent = getIntent();
         receiveUserId = intent.getStringExtra("UID");
         if (receiveUserId != null) {
@@ -100,8 +96,6 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         //receiveUser.setText(receiveUserString);
         Log.i(TAG, "receiveUser: " + receiveUserString);
 
-        // todo: read the user details before setting the room (UID + userDisplayName)
-        // todo we need to load the authUser data before setting the roomId
 /*
         // todo get the real uids, remove these line
         if (authUserId.equals("QLawxZmT98g276Om5xeeMQd6fco2")) {
@@ -114,12 +108,12 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         }
 */
 
-
+/*
         sMessageQuery = FirebaseDatabase.getInstance().getReference()
                 .child("messages")
                 .child(roomId)
                 .limitToLast(50);
-
+*/
         // Initialize Firebase Auth
         // mFirebaseAuth = FirebaseAuth.getInstance();
         // Initialize Firebase Database
@@ -159,41 +153,6 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
                 edtMessage.setText("");
             }
         });
-/*
-        // get the last 50 messages from database
-        // On the main screen of your app, you may want to show the 50 most recent chat messages.
-        // With Firebase you would use the following query:
-        Query query = messagesDatabase
-                .child(roomId);
-                //.limitToLast(10); // show the last 10 messages
-        //.limitToLast(50); // show the last 50 messages
-        // The FirebaseRecyclerAdapter binds a Query to a RecyclerView. When data is added, removed,
-        // or changed these updates are automatically applied to your UI in real time.
-        // First, configure the adapter by building FirebaseRecyclerOptions. In this case we will
-        // continue with our chat example:
-        FirebaseRecyclerOptions<MessageModel> options =
-                new FirebaseRecyclerOptions.Builder<MessageModel>()
-                        .setQuery(query, MessageModel.class)
-                        .build();
-        // Next create the FirebaseRecyclerAdapter object. You should already have a ViewHolder subclass
-        // for displaying each item. In this case we will use a custom ChatHolder class:
-        firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<MessageModel, MessageHolder>(options) {
-            @Override
-            public MessageHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                // Create a new instance of the ViewHolder, in this case we are using a custom
-                // layout called R.layout.message for each item
-                View view = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.message, parent, false);
-                return new MessageHolder(view);
-            }
-
-            @Override
-            protected void onBindViewHolder(MessageHolder holder, int position, MessageModel model) {
-                // Bind the Chat object to the ChatHolder
-                holder.bind(model);
-            }
-        };
-*/
 
         // id klaus zwang: hguE3YZEUfhrVTGi28wDHrOhDu83
         // id mf:          wxEMT5hSLfU18HrXXYBWiPAsYgC3
@@ -255,10 +214,6 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
 
     @Override
     public void onAuthStateChanged(@NonNull FirebaseAuth auth) {
-        //sendButton.setEnabled(isSignedIn());
-        //messageEdit.setEnabled(isSignedIn());
-        //mBinding.sendButton.setEnabled(isSignedIn());
-        //mBinding.messageEdit.setEnabled(isSignedIn());
 
         if (isSignedIn()) {
             // run attachRecyclerViewAdapter(); after the room was set
@@ -312,20 +267,8 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
                         Log.i(TAG, String.valueOf(userModel));
                         if (userModel == null) {
                             Log.i(TAG, "userModel is null, show message");
-                            /*
-                            warningNoData.setVisibility(View.VISIBLE);
-                            // get data from user
-                            userId.setText(authUserId);
-                            userEmail.setText(authUserEmail);
-                            userName.setText(usernameFromEmail(authUserEmail));
-                            userPublicKey.setText("not in use");
-                            userPhotoUrl.setText(authPhotoUrl);
-                             */
                         } else {
                             Log.i(TAG, "userModel email: " + userModel.getUserMail());
-                            //warningNoData.setVisibility(View.GONE);
-                            // get data from user
-                            //userId.setText(authUserId);
                             authUserId = mAuthUserId;
                             authUserEmail = userModel.getUserMail();
                             authDisplayName = userModel.getUserName();
@@ -384,40 +327,8 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
                 holder.bind(model);
             }
         };
-
-
     }
-/*
-    @NonNull
-    protected RecyclerView.Adapter newAdapter() {
-        FirebaseRecyclerOptions<MessageModel> options =
-                new FirebaseRecyclerOptions.Builder<MessageModel>()
-                        .setQuery(sMessageQuery, MessageModel.class)
-                        .setLifecycleOwner(this)
-                        .build();
 
-        return new FirebaseRecyclerAdapter<MessageModel, MessageHolder>(options) {
-            @Override
-            public MessageHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                return new MessageHolder(LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.message, parent, false));
-            }
-
-            @Override
-            protected void onBindViewHolder(@NonNull MessageHolder holder, int position, @NonNull MessageModel model) {
-                holder.bind(model);
-            }
-
-            @Override
-            public void onDataChanged() {
-                // If there are no chat messages, show a view that invites the user to add a message.
-                //mBinding.emptyTextView.setVisibility(getItemCount() == 0 ? View.VISIBLE : View.GONE);
-                //emptyTextView.setVisibility(getItemCount() == 0 ? View.VISIBLE : View.GONE);
-                System.out.println("*** room is empty, send the first message ***");
-            }
-        };
-    }
-*/
     private void reload() {
         Objects.requireNonNull(mFirebaseAuth.getCurrentUser()).reload().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override

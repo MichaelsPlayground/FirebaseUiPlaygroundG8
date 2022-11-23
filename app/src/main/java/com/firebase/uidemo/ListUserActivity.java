@@ -35,6 +35,7 @@ public class ListUserActivity extends AppCompatActivity {
     static final String TAG = "ListUser";
 
     private static String authUserId = "", authUserEmail, authDisplayName, authPhotoUrl;
+    boolean listAllUsers = true;
 
     private DatabaseReference mDatabase;
     private FirebaseAuth mFirebaseAuth;
@@ -51,6 +52,11 @@ public class ListUserActivity extends AppCompatActivity {
         signedInUser = findViewById(R.id.etListUserSignedInUser);
         progressBar = findViewById(R.id.pbListUser);
         userListView = findViewById(R.id.lvListUser);
+
+        // read the intent and check if all users are displayed or only "other" user
+        // means leave the own userId data out
+        Intent intent = getIntent();
+        listAllUsers = intent.getBooleanExtra("ALL_USERS", true);
 
         // Initialize Firebase Auth
         mFirebaseAuth = FirebaseAuth.getInstance();
@@ -80,12 +86,26 @@ public class ListUserActivity extends AppCompatActivity {
         listAdapter = new FirebaseListAdapter<UserModel>(listAdapterOptions) {
             @Override
             protected void populateView(@NonNull View v, @NonNull UserModel model, int position) {
-                String email = model.getUserMail();
-                String displayName = model.getUserName();
-                emailList.add(email);
-                displayNameList.add(displayName);
-                ((TextView) v.findViewById(android.R.id.text1)).setText(email);
-                listAdapter.notifyDataSetChanged();
+                if (listAllUsers) {
+                    String email = model.getUserMail();
+                    String displayName = model.getUserName();
+                    emailList.add(email);
+                    displayNameList.add(displayName);
+                    ((TextView) v.findViewById(android.R.id.text1)).setText(email);
+                    listAdapter.notifyDataSetChanged();
+                } else {
+                    String listUid = model.getUserId();
+                    if (authUserId.equals(listUid)) {
+                        // do nothing, do not list the own user id
+                    } else {
+                        String email = model.getUserMail();
+                        String displayName = model.getUserName();
+                        emailList.add(email);
+                        displayNameList.add(displayName);
+                        ((TextView) v.findViewById(android.R.id.text1)).setText(email);
+                        listAdapter.notifyDataSetChanged();
+                    }
+                }
             }
         };
         userListView.setAdapter(listAdapter);
