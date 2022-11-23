@@ -69,6 +69,8 @@ public class UploadImageActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.pbUploadImage);
         edtLinkToImage = findViewById(R.id.etUploadImageLinkToImage);
 
+
+
         // don't show the keyboard on startUp
         //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 

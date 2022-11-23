@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
     Button databaseUserProfile;
     Button signInWithEmailAndPassword;
     Button sendMessage;
-    Button uploadImage;
+    Button images, uploadImage, listImages;
     Button listUser;
 
     static final String TAG = "FirebaseUiMain";
@@ -113,12 +113,34 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        images = findViewById(R.id.btnMainImages);
+        images.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "upload an image to Storage");
+                Intent intent = new Intent(MainActivity.this, ImageActivity.class);
+                startActivity(intent);
+                //finish();
+            }
+        });
+
         uploadImage = findViewById(R.id.btnMainUploadImage);
         uploadImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Log.d(TAG, "upload an image to Storage");
                 Intent intent = new Intent(MainActivity.this, UploadImageActivity.class);
+                startActivity(intent);
+                //finish();
+            }
+        });
+
+        listImages = findViewById(R.id.btnMainListImages);
+        listImages.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "list images on Storage");
+                Intent intent = new Intent(MainActivity.this, ListImagesActivity.class);
                 startActivity(intent);
                 //finish();
             }
@@ -139,7 +161,9 @@ public class MainActivity extends AppCompatActivity {
     private void activeButtonsWhileUserIsSignedIn(boolean isSignedIn) {
         databaseUserProfile.setEnabled(isSignedIn);
         sendMessage.setEnabled(isSignedIn);
+        images.setEnabled(isSignedIn);
         uploadImage.setEnabled(isSignedIn);
+        listImages.setEnabled(isSignedIn);
         listUser.setEnabled(isSignedIn);
     }
 
