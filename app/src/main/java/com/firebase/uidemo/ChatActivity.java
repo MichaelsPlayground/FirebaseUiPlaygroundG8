@@ -37,7 +37,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
     com.google.android.material.textfield.TextInputLayout edtMessageLayout;
     RecyclerView messagesList;
 
-    private static String authUserId = "", authUserEmail, authDisplayName;
+    private static String authUserId = "", authUserEmail = "", authDisplayName = "";
     private static String receiveUserId = "", receiveUserEmail = "", receiveUserDisplayName = "";
     private static String roomId = "";
 
@@ -95,25 +95,10 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         receiveUserString += "\nDisplay Name: " + receiveUserDisplayName;
         //receiveUser.setText(receiveUserString);
         Log.i(TAG, "receiveUser: " + receiveUserString);
+        // get own data
+        authUserEmail = intent.getStringExtra("AUTH_EMAIL");
+        authDisplayName = intent.getStringExtra("AUTH_DISPLAYNAME");
 
-/*
-        // todo get the real uids, remove these line
-        if (authUserId.equals("QLawxZmT98g276Om5xeeMQd6fco2")) {
-            receiveUserId = "wxEMT5hSLfU18HrXXYBWiPAsYgC3";
-            System.out.println("*** authUserId.equals(QLawxZmT98g276Om5xeeMQd6fco2");
-        } else {
-            System.out.println("*** authUserId NOT equals(QLawxZmT98g276Om5xeeMQd6fco2");
-            authUserId = "wxEMT5hSLfU18HrXXYBWiPAsYgC3";
-            receiveUserId = "QLawxZmT98g276Om5xeeMQd6fco2";
-        }
-*/
-
-/*
-        sMessageQuery = FirebaseDatabase.getInstance().getReference()
-                .child("messages")
-                .child(roomId)
-                .limitToLast(50);
-*/
         // Initialize Firebase Auth
         // mFirebaseAuth = FirebaseAuth.getInstance();
         // Initialize Firebase Database
@@ -211,22 +196,52 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         FirebaseAuth.getInstance().removeAuthStateListener(this);
     }
 
-
     @Override
     public void onAuthStateChanged(@NonNull FirebaseAuth auth) {
-
         if (isSignedIn()) {
-            // run attachRecyclerViewAdapter(); after the room was set
-            //attachRecyclerViewAdapter();
-            authUserId = mFirebaseAuth.getCurrentUser().getUid();
-            authUserEmail = mFirebaseAuth.getCurrentUser().getEmail();
-
+            //getAuthUserCredentials();
         } else {
             Toast.makeText(this, "you need to sign in before chatting", Toast.LENGTH_SHORT).show();
             //auth.signInAnonymously().addOnCompleteListener(new SignInResultNotifier(this));
         }
     }
 
+    /*
+    private void getAuthUserCredentials() {
+        if (isSignedIn()) {
+            Log.i(TAG, "getAuthUserCredentials");
+            authUserId = mFirebaseAuth.getCurrentUser().getUid();
+            authUserEmail = mFirebaseAuth.getCurrentUser().getEmail();
+            // get the authDisplayName from users database
+            DatabaseReference mUsersDatabase;
+            // Initialize Firebase Database
+            // https://fir-playground-1856e-default-rtdb.europe-west1.firebasedatabase.app/
+            // if the database location is not us we need to use the reference:
+            //mDatabase = FirebaseDatabase.getInstance("https://fir-playground-1856e-default-rtdb.europe-west1.firebasedatabase.app/").getReference();
+            // the following can be used if the database server location is us
+            mUsersDatabase = FirebaseDatabase.getInstance().getReference();
+            mUsersDatabase.child("users").child(authUserId).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DataSnapshot> task) {
+                    Log.i(TAG, "load authDisplayName from users database");
+                    if (!task.isSuccessful()) {
+                        Log.e(TAG, "Error getting data", task.getException());
+                    } else {
+                        // check for a null value means no user data were saved before
+                        UserModel userModel = task.getResult().getValue(UserModel.class);
+                        //Log.i(TAG, String.valueOf(userModel));
+                        if (userModel == null) {
+                            Log.i(TAG, "userModel is null");
+                        } else {
+                            authDisplayName = userModel.getUserName();
+                            Log.i(TAG, "authDisplayName: " + authDisplayName);
+                        }
+                    }
+                }
+            });
+        }
+    }
+*/
     private void attachRecyclerViewAdapter() {
         //final RecyclerView.Adapter adapter = newAdapter();
         final RecyclerView.Adapter adapter = firebaseRecyclerAdapter;

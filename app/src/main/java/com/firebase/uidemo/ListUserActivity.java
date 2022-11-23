@@ -86,62 +86,23 @@ public class ListUserActivity extends AppCompatActivity {
         listAdapter = new FirebaseListAdapter<UserModel>(listAdapterOptions) {
             @Override
             protected void populateView(@NonNull View v, @NonNull UserModel model, int position) {
-                if (listAllUsers) {
-                    String email = model.getUserMail();
-                    String displayName = model.getUserName();
-                    emailList.add(email);
-                    displayNameList.add(displayName);
-                    ((TextView) v.findViewById(android.R.id.text1)).setText(email);
-                    listAdapter.notifyDataSetChanged();
-                } else {
-                    String listUid = model.getUserId();
-                    if (authUserId.equals(listUid)) {
-                        // do nothing, do not list the own user id
-                    } else {
-                        String email = model.getUserMail();
-                        String displayName = model.getUserName();
-                        emailList.add(email);
-                        displayNameList.add(displayName);
-                        ((TextView) v.findViewById(android.R.id.text1)).setText(email);
-                        listAdapter.notifyDataSetChanged();
-                    }
+                String email = model.getUserMail();
+                String displayName = model.getUserName();
+                emailList.add(email);
+                displayNameList.add(displayName);
+                ((TextView) v.findViewById(android.R.id.text1)).setText(email);
+                listAdapter.notifyDataSetChanged();
+                // if the user is the authUser save email and displayName
+                //if ()
+                String uid = listAdapter.getRef(position).getKey();
+                Log.i(TAG, "uid/key: " + uid);
+                if (uid.equals(authUserId)) {
+                    authDisplayName = displayName;
+                    authUserEmail = email;
                 }
             }
         };
         userListView.setAdapter(listAdapter);
-
-        /*
-        usersDatabase.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                // this is the new way
-                FirebaseListOptions<UserModel> listAdapterOptions;
-                listAdapterOptions = new FirebaseListOptions.Builder<UserModel>()
-                        .setLayout(android.R.layout.simple_list_item_1)
-                        .setQuery(usersDatabase, UserModel.class)
-                        .build();
-
-                listAdapter = new FirebaseListAdapter<UserModel>(listAdapterOptions) {
-                    @Override
-                    protected void populateView(@NonNull View v, @NonNull UserModel model, int position) {
-                        String email = model.getUserMail();
-                        String displayName = model.getUserName();
-                        emailList.add(email);
-                        displayNameList.add(displayName);
-                        ((TextView) v.findViewById(android.R.id.text1)).setText(email);
-                        listAdapter.notifyDataSetChanged();
-                    }
-                };
-                userListView.setAdapter(listAdapter);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
-         */
 
         Button backToMain = findViewById(R.id.btnListUserToMain);
         backToMain.setOnClickListener(new View.OnClickListener() {
@@ -164,12 +125,23 @@ public class ListUserActivity extends AppCompatActivity {
         userListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                String listUserId = listAdapter.getRef(position).getKey();
+                if (!listAllUsers) {
+                    if (listUserId.equals(authUserId)) {
+                        // when not all users are listed avoid clicking yourself
+                        Toast.makeText(getApplicationContext(),
+                                "you cannot chat with yourself, choose another user",
+                                Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
                 Log.i(TAG, "userListView clicked on pos: " + position);
-                System.out.println("listAdapter.getRef(position): " + listAdapter.getRef(position).getKey());
                 Intent intent = new Intent(ListUserActivity.this, ChatActivity.class);
                 intent.putExtra("UID", listAdapter.getRef(position).getKey());
                 intent.putExtra("EMAIL", emailList.get(position));
                 intent.putExtra("DISPLAYNAME", displayNameList.get(position));
+                intent.putExtra("AUTH_EMAIL", authUserEmail);
+                intent.putExtra("AUTH_DISPLAYNAME", authDisplayName);
                 startActivity(intent);
                 finish();
             }
@@ -182,17 +154,19 @@ public class ListUserActivity extends AppCompatActivity {
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mFirebaseAuth.getCurrentUser();
         if (currentUser != null) {
+            authUserId = currentUser.getUid();
             reload();
             listAdapter.startListening();
         } else {
             signedInUser.setText("no user is signed in");
+            authUserId = "";
         }
     }
 
     // Function to tell the app to stop getting
     // data from database on stopping of the activity
-    @Override protected void onStop()
-    {
+    @Override
+    protected void onStop() {
         super.onStop();
         listAdapter.stopListening();
     }
@@ -228,6 +202,7 @@ public class ListUserActivity extends AppCompatActivity {
             signedInUser.setText(userData);
         } else {
             signedInUser.setText(null);
+            authUserId = "";
         }
     }
 
@@ -242,7 +217,6 @@ public class ListUserActivity extends AppCompatActivity {
             progressBar.setVisibility(View.INVISIBLE);
         }
     }
-
 
 
 }
