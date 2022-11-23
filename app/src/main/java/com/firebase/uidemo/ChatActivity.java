@@ -69,8 +69,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
 
         // Initialize Firebase Auth
         mFirebaseAuth = FirebaseAuth.getInstance();
-        // set the persistance first
-        //FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        // set the persistance first but in MainActivity
         //FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         loadSignedInUserData(mFirebaseAuth.getCurrentUser().getUid());
 
@@ -206,44 +205,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         }
     }
 
-    /*
-    private void getAuthUserCredentials() {
-        if (isSignedIn()) {
-            Log.i(TAG, "getAuthUserCredentials");
-            authUserId = mFirebaseAuth.getCurrentUser().getUid();
-            authUserEmail = mFirebaseAuth.getCurrentUser().getEmail();
-            // get the authDisplayName from users database
-            DatabaseReference mUsersDatabase;
-            // Initialize Firebase Database
-            // https://fir-playground-1856e-default-rtdb.europe-west1.firebasedatabase.app/
-            // if the database location is not us we need to use the reference:
-            //mDatabase = FirebaseDatabase.getInstance("https://fir-playground-1856e-default-rtdb.europe-west1.firebasedatabase.app/").getReference();
-            // the following can be used if the database server location is us
-            mUsersDatabase = FirebaseDatabase.getInstance().getReference();
-            mUsersDatabase.child("users").child(authUserId).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DataSnapshot> task) {
-                    Log.i(TAG, "load authDisplayName from users database");
-                    if (!task.isSuccessful()) {
-                        Log.e(TAG, "Error getting data", task.getException());
-                    } else {
-                        // check for a null value means no user data were saved before
-                        UserModel userModel = task.getResult().getValue(UserModel.class);
-                        //Log.i(TAG, String.valueOf(userModel));
-                        if (userModel == null) {
-                            Log.i(TAG, "userModel is null");
-                        } else {
-                            authDisplayName = userModel.getUserName();
-                            Log.i(TAG, "authDisplayName: " + authDisplayName);
-                        }
-                    }
-                }
-            });
-        }
-    }
-*/
     private void attachRecyclerViewAdapter() {
-        //final RecyclerView.Adapter adapter = newAdapter();
         final RecyclerView.Adapter adapter = firebaseRecyclerAdapter;
         if (adapter != null) {
             Log.i(TAG, "attachRecyclerViewAdapter");
