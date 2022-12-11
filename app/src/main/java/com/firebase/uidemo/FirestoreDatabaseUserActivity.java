@@ -241,14 +241,9 @@ public class FirestoreDatabaseUserActivity extends AppCompatActivity {
         }
     }
 
-    // try to read the entry for the signed-in user in RealtimeDatabase
-    private void readUserDatabase(FirebaseUser user) {
-
-    }
-
     public void writeNewUser(String userId, String name, String email, String photoUrl, String publicKey) {
         // user is online at this time
-        UserFirestoreModel user = new UserFirestoreModel(name, email, photoUrl, publicKey, true);
+        UserFirestoreModel user = new UserFirestoreModel(userId, name, email, photoUrl, publicKey, true);
         firestoreDatabase.collection(CHILD_USERS).document(userId)
                 .set(user)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {

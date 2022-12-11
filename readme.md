@@ -22,6 +22,11 @@ Storage tutorial: https://firebasetutorials.com/use-firebase-storage/
 
 Source code: https://github.com/Waqas334/LearningCloudStorage 
 
+A good comprehensive article about FirebaseUi (AuthUi, RT DatabaseUi, FirestoreUi and StorageUi): 
+https://www.ericthecoder.com/2018/05/05/a-comprehensive-guide-to-firebaseui-the-shortcut-to-authentication-firestore-and-storage/
+
+The demp app: https://github.com/ericdecanini/FirebaseUIDemo
+
 Storage rules:
 ```plaintext
 rules_version = '2';

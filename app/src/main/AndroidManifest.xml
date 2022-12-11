@@ -16,6 +16,13 @@
         android:theme="@style/Theme.FirebaseUiPlayground"
         tools:targetApi="31">
         <activity
+            android:name=".SelectUserFirestoreRvActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name=".ChatDatabaseActivity"
             android:exported="false">
             <meta-data
@@ -44,7 +51,21 @@
                 android:value="" />
         </activity>
         <activity
+            android:name=".SelectUserFirestoreActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name=".ListUserDatabaseRecyclerviewActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
+            android:name=".ChatMessageFirestoreActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
@@ -71,7 +92,6 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
-
         <activity
             android:name=".MainActivity"
             android:exported="true">

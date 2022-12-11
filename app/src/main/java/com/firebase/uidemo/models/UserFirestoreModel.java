@@ -18,7 +18,8 @@ public class UserFirestoreModel {
     }
 
     // for signUp
-    public UserFirestoreModel(String userName, String userMail, String userPhotoUrl, String userPublicKey, boolean userIsOnline) {
+    public UserFirestoreModel(String userId, String userName, String userMail, String userPhotoUrl, String userPublicKey, boolean userIsOnline) {
+        this.userId = userId;
         this.userName = userName;
         this.userMail = userMail;
         this.userPhotoUrl = userPhotoUrl;

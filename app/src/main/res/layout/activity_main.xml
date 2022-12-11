@@ -222,6 +222,36 @@
                 android:text="firestore database user profile"
                 android:enabled="false"/>
 
+            <Button
+                android:id="@+id/btnMainFirestoreSelectUser"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:enabled="false"
+                android:text="select firestore database user" />
+
+            <Button
+                android:id="@+id/btnMainFirestoreSelectUserRv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:enabled="false"
+                android:text="select firestore database user in RecyclerView" />
+
+            <Button
+                android:id="@+id/btnMainFirestoreChatMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:enabled="false"
+                android:text="chat with another user" />
+
             <com.google.android.material.divider.MaterialDivider
                 android:layout_width="match_parent"
                 android:layout_height="2dp"

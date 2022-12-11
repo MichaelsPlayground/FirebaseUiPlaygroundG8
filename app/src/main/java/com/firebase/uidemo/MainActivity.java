@@ -11,9 +11,12 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Arrays;
 import java.util.List;
@@ -23,12 +26,15 @@ public class MainActivity extends AppCompatActivity {
     com.google.android.material.textfield.TextInputEditText signedInUser;
     Button signInWithEmailAndPassword;
     Button databaseUserProfile, databaseSendMessage, databaseListUser, databaseListUserRv;
-    Button firestoreUserProfile;
+    Button firestoreDatabaseUserProfile, firestoreDatabaseSelectUser, firestoreDatabaseSelectUserRv;
+    Button firestoreDatabaseChatMessage;
     Button images, uploadImage, listImages;
 
     static final String TAG = "FirebaseUiMain";
 
     private FirebaseAuth mFirebaseAuth;
+    FirebaseFirestore firestoreDatabase = FirebaseFirestore.getInstance();
+    private static final String CHILD_USERS = "users";
     public static final int RC_SIGN_IN = 1;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
 
@@ -47,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         mFirebaseAuth = FirebaseAuth.getInstance();
         // set the persistance first
         //FirebaseDatabase.getInstance().setPersistenceEnabled(true);
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        //FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -88,6 +94,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Log.d(TAG, "sign out the current user");
+                // set user onlineStatus in Firestore users to false
+                setFirestoreUserOnlineStatus(mFirebaseAuth.getCurrentUser().getUid(), false);
                 mFirebaseAuth.signOut();
                 signedInUser.setText(null);
             }
@@ -148,12 +156,46 @@ public class MainActivity extends AppCompatActivity {
          * firestore database section
          */
 
-        Button firestoreDatabaseUserProfile = findViewById(R.id.btnMainFirestoreDatabaseUser);
+        firestoreDatabaseUserProfile = findViewById(R.id.btnMainFirestoreDatabaseUser);
         firestoreDatabaseUserProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Log.i(TAG, "show the user profile on Firestore Database");
                 Intent intent = new Intent(MainActivity.this, FirestoreDatabaseUserActivity.class);
+                startActivity(intent);
+                //finish();
+            }
+        });
+
+        firestoreDatabaseSelectUser = findViewById(R.id.btnMainFirestoreSelectUser);
+        firestoreDatabaseSelectUser.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.i(TAG, "list user on Firestore in ListView");
+                Intent intent = new Intent(MainActivity.this, SelectUserFirestoreActivity.class);
+                startActivity(intent);
+                //finish();
+            }
+        });
+
+        firestoreDatabaseSelectUserRv = findViewById(R.id.btnMainFirestoreSelectUserRv   );
+        firestoreDatabaseSelectUserRv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.i(TAG, "list user on Firestore in RecyclerView");
+                Intent intent = new Intent(MainActivity.this, SelectUserFirestoreRvActivity.class);
+                startActivity(intent);
+                //finish();
+            }
+        });
+
+        firestoreDatabaseChatMessage = findViewById(R.id.btnMainFirestoreChatMessage);
+        firestoreDatabaseChatMessage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.i(TAG, "chat with another user on Firestore");
+                Intent intent = new Intent(MainActivity.this, SelectUserFirestoreRvActivity.class);
+                intent.putExtra("CALLER_ACTIVITY", "CHAT_MESSAGE_FIRESTORE");
                 startActivity(intent);
                 //finish();
             }
@@ -203,9 +245,30 @@ public class MainActivity extends AppCompatActivity {
         databaseListUser.setEnabled(isSignedIn);
         databaseListUserRv.setEnabled(isSignedIn);
         databaseSendMessage.setEnabled(isSignedIn);
+        firestoreDatabaseUserProfile.setEnabled(isSignedIn);
+        firestoreDatabaseSelectUser.setEnabled(isSignedIn);
+        firestoreDatabaseSelectUserRv.setEnabled(isSignedIn);
+        firestoreDatabaseChatMessage.setEnabled(isSignedIn);
         images.setEnabled(isSignedIn);
         uploadImage.setEnabled(isSignedIn);
         listImages.setEnabled(isSignedIn);
+    }
+
+    public void setFirestoreUserOnlineStatus(String userId, boolean onlineStatus) {
+        firestoreDatabase.collection(CHILD_USERS).document(userId)
+                .update("userOnline", onlineStatus)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.i(TAG, "DocumentSnapshot update successfully written for userId: " + userId);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.i(TAG, "Error updating document for userId: " + userId, e);
+                    }
+                });
     }
 
     @Override
