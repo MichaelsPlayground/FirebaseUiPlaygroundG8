@@ -155,17 +155,37 @@
                 android:text="update user picture" />
 
             <Button
-                android:id="@+id/btnMainSendMessage"
+                android:id="@+id/btnMainDatabaseListUser"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
                 android:enabled="false"
-                android:text="send a message to another user" />
+                android:text="list user on database" />
 
             <Button
-                android:id="@+id/btnMainListMessages"
+                android:id="@+id/btnMainDatabaseListUserRv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:enabled="false"
+                android:text="list user on database in RecyclerView" />
+
+            <Button
+                android:id="@+id/btnMainDatabaseSendMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:enabled="false"
+                android:text="chat with another user" />
+
+            <Button
+                android:id="@+id/btnMainDatabaseListMessages"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
@@ -173,6 +193,34 @@
                 android:layout_marginEnd="16dp"
                 android:enabled="false"
                 android:text="list messages" />
+
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:background="@color/blue_300"
+                android:text="* firestore database section *"
+                android:textAlignment="center"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btnMainFirestoreDatabaseUser"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:text="firestore database user profile"
+                android:enabled="false"/>
 
             <com.google.android.material.divider.MaterialDivider
                 android:layout_width="match_parent"
@@ -249,16 +297,6 @@
                 android:textAlignment="center"
                 android:textSize="16sp"
                 android:textStyle="bold" />
-
-            <Button
-                android:id="@+id/btnMainListUser"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="16dp"
-                android:enabled="false"
-                android:text="list user on database" />
 
             <Button
                 android:id="@+id/btnMainSendNotification"

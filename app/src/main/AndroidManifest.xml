@@ -16,7 +16,7 @@
         android:theme="@style/Theme.FirebaseUiPlayground"
         tools:targetApi="31">
         <activity
-            android:name=".ChatActivity"
+            android:name=".ChatDatabaseActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
@@ -30,7 +30,21 @@
                 android:value="" />
         </activity>
         <activity
-            android:name=".ListUserActivity"
+            android:name=".FirestoreDatabaseUserActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
+            android:name=".ListUserDatabaseActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
+            android:name=".ListUserDatabaseRecyclerviewActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"

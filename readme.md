@@ -18,6 +18,10 @@ Realtime Database rules (**Note: these rules are insecure**):
 }
 ```
 
+Storage tutorial: https://firebasetutorials.com/use-firebase-storage/
+
+Source code: https://github.com/Waqas334/LearningCloudStorage 
+
 Storage rules:
 ```plaintext
 rules_version = '2';
@@ -25,6 +29,17 @@ service firebase.storage {
   match /b/{bucket}/o {
     match /{allPaths=**} {
       allow read, write: if true;
+    }
+  }
+}
+```
+
+Storage rules - only authenticated user have access:
+```plaintext
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if request.auth != null;
     }
   }
 }

@@ -30,7 +30,7 @@ import com.google.firebase.database.Query;
 import java.util.Date;
 import java.util.Objects;
 
-public class ChatActivity extends AppCompatActivity implements FirebaseAuth.AuthStateListener {
+public class ChatDatabaseActivity extends AppCompatActivity implements FirebaseAuth.AuthStateListener {
 
     TextView header;
     com.google.android.material.textfield.TextInputEditText edtMessage;
@@ -41,7 +41,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
     private static String receiveUserId = "", receiveUserEmail = "", receiveUserDisplayName = "";
     private static String roomId = "";
 
-    static final String TAG = "Chat";
+    static final String TAG = "ChatDatabase";
 
     private DatabaseReference mDatabaseReference;
     private DatabaseReference messagesDatabase;
@@ -54,12 +54,12 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat);
+        setContentView(R.layout.activity_chat_database);
 
-        header = findViewById(R.id.tvChatHeader);
-        edtMessageLayout = findViewById(R.id.etChatMessageLayout);
-        edtMessage = findViewById(R.id.etChatMessage);
-        messagesList = findViewById(R.id.rvChat);
+        header = findViewById(R.id.tvChatDatabaseHeader);
+        edtMessageLayout = findViewById(R.id.etChatDatabaseMessageLayout);
+        edtMessage = findViewById(R.id.etChatDatabaseMessage);
+        messagesList = findViewById(R.id.rvChatDatabase);
 
         messagesList.setHasFixedSize(true);
         messagesList.setLayoutManager(new LinearLayoutManager(this));
@@ -108,9 +108,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         //mDatabase = FirebaseDatabase.getInstance().getReference();
         // see loadSignedInUserData as we use a new instance there
 
-        // Create a instance of the database and get
-        // its reference
-        //mDatabaseReference = FirebaseDatabase.getInstance().getReference();
+        // Create a instance of the database and get its reference
         mDatabaseReference = FirebaseDatabase.getInstance().getReference();
         messagesDatabase = mDatabaseReference.child("messages");
         messagesDatabase.keepSynced(true);
@@ -138,9 +136,6 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
             }
         });
 
-        // id klaus zwang: hguE3YZEUfhrVTGi28wDHrOhDu83
-        // id mf:          wxEMT5hSLfU18HrXXYBWiPAsYgC3
-        // id q:           QLawxZmT98g276Om5xeeMQd6fco2
     }
 
     /**
@@ -265,9 +260,12 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
     private void setDatabaseForRoom(String ownUid, String receiverUid) {
         // get the roomId by comparing 2 UID strings
         roomId = getRoomId(ownUid, receiverUid);
+        /*
         String conversationString = "chat between " + ownUid + " (" + authDisplayName + ")"
                 + " and " + receiveUserId + " (" + receiveUserDisplayName + ")"
                 + " in room " + roomId;
+         */
+        String  conversationString = "chat with " + receiveUserDisplayName;
         header.setText(conversationString);
         Log.i(TAG, conversationString);
 

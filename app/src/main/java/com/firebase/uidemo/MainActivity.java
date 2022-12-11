@@ -21,11 +21,10 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     com.google.android.material.textfield.TextInputEditText signedInUser;
-    Button databaseUserProfile;
     Button signInWithEmailAndPassword;
-    Button sendMessage;
+    Button databaseUserProfile, databaseSendMessage, databaseListUser, databaseListUserRv;
+    Button firestoreUserProfile;
     Button images, uploadImage, listImages;
-    Button listUser;
 
     static final String TAG = "FirebaseUiMain";
 
@@ -64,6 +63,10 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
+        /**
+         * authentication sign-in/out section
+         */
+
         signInWithEmailAndPassword = findViewById(R.id.btnMainSignInEmailPassword);
         signInWithEmailAndPassword.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,6 +93,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        /**
+         * database section
+         */
+
         databaseUserProfile = findViewById(R.id.btnMainDatabaseUser);
         databaseUserProfile.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -101,19 +108,60 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        sendMessage = findViewById(R.id.btnMainSendMessage);
-        sendMessage.setOnClickListener(new View.OnClickListener() {
+        databaseListUser = findViewById(R.id.btnMainDatabaseListUser);
+        databaseListUser.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.i(TAG, "list user on database");
+                Intent intent = new Intent(MainActivity.this, ListUserDatabaseActivity.class);
+                startActivity(intent);
+                //finish();
+            }
+        });
+
+        databaseListUserRv = findViewById(R.id.btnMainDatabaseListUserRv);
+        databaseListUserRv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.i(TAG, "list user on database in RecyclerView");
+                Intent intent = new Intent(MainActivity.this, ListUserDatabaseRecyclerviewActivity.class);
+                startActivity(intent);
+                //finish();
+            }
+        });
+
+        databaseSendMessage = findViewById(R.id.btnMainDatabaseSendMessage);
+        databaseSendMessage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Log.d(TAG, "send a message to another user");
                 // todo first we need to select a receipient, from there we move to ChatActivity
                 //Intent intent = new Intent(MainActivity.this, ChatActivity.class);
-                Intent intent = new Intent(MainActivity.this, ListUserActivity.class);
+                Intent intent = new Intent(MainActivity.this, ListUserDatabaseActivity.class);
                 intent.putExtra("ALL_USERS", false);
                 startActivity(intent);
                 //finish();
             }
         });
+
+        /**
+         * firestore database section
+         */
+
+        Button firestoreDatabaseUserProfile = findViewById(R.id.btnMainFirestoreDatabaseUser);
+        firestoreDatabaseUserProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.i(TAG, "show the user profile on Firestore Database");
+                Intent intent = new Intent(MainActivity.this, FirestoreDatabaseUserActivity.class);
+                startActivity(intent);
+                //finish();
+            }
+        });
+
+        /**
+         * storage section
+         */
 
         images = findViewById(R.id.btnMainImages);
         images.setOnClickListener(new View.OnClickListener() {
@@ -148,26 +196,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        listUser = findViewById(R.id.btnMainListUser);
-        listUser.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d(TAG, "list user on database");
-                Intent intent = new Intent(MainActivity.this, ListUserActivity.class);
-                intent.putExtra("ALL_USERS", true);
-                startActivity(intent);
-                //finish();
-            }
-        });
     }
 
     private void activeButtonsWhileUserIsSignedIn(boolean isSignedIn) {
         databaseUserProfile.setEnabled(isSignedIn);
-        sendMessage.setEnabled(isSignedIn);
+        databaseListUser.setEnabled(isSignedIn);
+        databaseListUserRv.setEnabled(isSignedIn);
+        databaseSendMessage.setEnabled(isSignedIn);
         images.setEnabled(isSignedIn);
         uploadImage.setEnabled(isSignedIn);
         listImages.setEnabled(isSignedIn);
-        listUser.setEnabled(isSignedIn);
     }
 
     @Override

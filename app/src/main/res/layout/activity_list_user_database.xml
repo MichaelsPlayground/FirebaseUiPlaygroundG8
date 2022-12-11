@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/grey_300"
     android:orientation="vertical"
-    tools:context=".ListUserRecyclerviewActivity">
+    tools:context=".ListUserDatabaseActivity">
 
     <TextView
         android:layout_width="match_parent"
@@ -14,13 +14,13 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
-        android:text="List all users"
+        android:text="List all users on Firebase Database"
         android:textAlignment="center"
         android:textSize="16sp"
         android:textStyle="bold" />
 
     <ProgressBar
-        android:id="@+id/pbListUser"
+        android:id="@+id/pbListUserDatabase"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -28,7 +28,7 @@
         android:visibility="invisible" />
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/etListUserSignedInUserLayout"
+        android:id="@+id/etListUserDatabaseSignedInUserLayout"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -46,7 +46,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etListUserSignedInUser"
+            android:id="@+id/etListUserDatabaseSignedInUser"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
@@ -64,7 +64,7 @@
         android:layout_marginBottom="8dp" />
 
     <Button
-        android:id="@+id/btnListUserRun"
+        android:id="@+id/btnListUserDatabaseRun"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -73,7 +73,7 @@
         android:text="list user" />
 
     <Button
-        android:id="@+id/btnListUserToMain"
+        android:id="@+id/btnListUserDatabaseToMain"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -81,11 +81,12 @@
         android:layout_marginEnd="16dp"
         android:text="back to Main" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvListUser"
+    <ListView
+        android:id="@+id/lvListUserDatabase"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#65E4A6"/>
+        android:layout_marginBottom="2dp">
+    </ListView>
 
     <com.google.android.material.divider.MaterialDivider
         android:layout_width="match_parent"
