@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/chatFirestoreMessageLayout"
-    tools:context=".ChatMessageFirestoreActivity">
+    tools:context=".ChatMessageFirestoreActivityOrg">
 
     <TextView
         android:id="@+id/tvChatFirestoreHeader"
@@ -24,7 +24,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvChatFirestoreRv"
+        android:id="@+id/rvChatFirestore"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginStart="8dp"
@@ -34,7 +34,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvChatFirestoreHeader"
-        />
+        tools:listitem="@layout/firestore_chat_message" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/etChatFirestoreMessageLayout"

@@ -23,8 +23,8 @@ import java.text.SimpleDateFormat;
 
 public class MessageHolder extends RecyclerView.ViewHolder{
 
-    private final TextView mNameField;
-    private final TextView mTextField;
+    TextView mNameField;
+    TextView mTextField;
     //private final FrameLayout mLeftArrow;
     //private final FrameLayout mRightArrow;
     private final RelativeLayout mMessageContainer;
@@ -57,7 +57,7 @@ public class MessageHolder extends RecyclerView.ViewHolder{
     public void bind(@NonNull MessageModel message) {
         //setName(message.getName());
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yy HH:mm:ss");
-        String messageTime  = dateFormat.format(message.getMessageTime());
+        String messageTime = dateFormat.format(message.getMessageTime());
         setName(messageTime);
         setMessage(message.getMessage());
 

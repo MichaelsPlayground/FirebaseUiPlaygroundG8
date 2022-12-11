@@ -4,9 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,10 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.firebase.uidemo.models.MessageModel;
-import com.firebase.uidemo.models.UserFirestoreModel;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -32,28 +27,21 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class ChatMessageFirestoreActivity extends AppCompatActivity {
+public class ChatMessageFirestoreActivityOrg extends AppCompatActivity {
 
     static final String TAG = "ChatMessageFirestore";
 
     TextView chatHeader;
     com.google.android.material.textfield.TextInputEditText edtMessage;
     com.google.android.material.textfield.TextInputLayout edtMessageLayout;
-
-    RecyclerView listFirestore;
-    FirestoreRecyclerAdapter adapter;
-
-
-
-    //RecyclerView chatList;
-    //private ArrayList<MessageModel> chatArrayList;
-    //private ChatFirestoreRvAdapter chatRvAdapter;
-    //LinearLayoutManager linearLayoutManager;
+    RecyclerView chatList;
+    private ArrayList<MessageModel> chatArrayList;
+    private ChatFirestoreRvAdapter chatRvAdapter;
+    LinearLayoutManager linearLayoutManager;
 
     private static String authUserId = "", authUserEmail, authDisplayName, authPhotoUrl;
     private static String receiveUserId = "", receiveUserEmail = "", receiveUserDisplayName = "";
@@ -67,13 +55,21 @@ public class ChatMessageFirestoreActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat_message_firestore);
+        setContentView(R.layout.activity_chat_message_firestore_org);
 
         chatHeader = findViewById(R.id.tvChatFirestoreHeader);
         edtMessageLayout = findViewById(R.id.etChatFirestoreMessageLayout);
         edtMessage = findViewById(R.id.etChatFirestoreMessage);
+        chatList = findViewById(R.id.rvChatFirestore);
 
-        listFirestore = findViewById(R.id.rvChatFirestoreRv);
+        chatList.setHasFixedSize(true);
+        linearLayoutManager = new LinearLayoutManager(getApplicationContext());
+        linearLayoutManager.setReverseLayout(false);
+        linearLayoutManager.setStackFromEnd(true);
+        chatList.setLayoutManager(linearLayoutManager);
+
+        // creating our new array list
+        chatArrayList = new ArrayList<>();
 
         // don't show the keyboard on startUp
         //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
@@ -91,12 +87,10 @@ public class ChatMessageFirestoreActivity extends AppCompatActivity {
             roomId = getRoomId(authUserId, receiveUserId);
             Log.i(TAG, "selectedUid: " + receiveUserId);
             Log.i(TAG, "we chat in roomId: " + roomId);
-            //adapter.startListening();
         } else {
             // no userId was given
             Log.e(TAG, "no userId was given, abort");
             roomId = "";
-            adapter.getStateRestorationPolicy();
         }
         receiveUserEmail = intent.getStringExtra("EMAIL");
         if (receiveUserEmail != null) {
@@ -112,7 +106,104 @@ public class ChatMessageFirestoreActivity extends AppCompatActivity {
         chatHeader.setText("Chat with " + receiveUserDisplayName);
         Log.i(TAG, "receiveUser: " + receiveUserString);
 
-        queryList();
+        // adding our array list to our recycler view adapter class.
+        chatRvAdapter = new ChatFirestoreRvAdapter(chatArrayList, this);
+
+        // setting adapter to our recycler view.
+        chatList.setAdapter(chatRvAdapter);
+
+        CollectionReference collectionReference = firestoreDatabase
+                .collection(CHILD_MESSAGES)
+                .document(roomId)
+                .collection(CHILD_MESSAGES_SUB);
+        // sort list by message time
+        Query query = collectionReference.orderBy("messageTime", Query.Direction.ASCENDING);
+
+/*
+        // this is a onetime snapshot - no updates
+        query
+        //collectionReference
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        // after getting the data we are calling on success method
+                        // and inside this method we are checking if the received
+                        // query snapshot is empty or not.
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            // if the snapshot is not empty we are
+                            // hiding our progress bar and adding
+                            // our data in a list.
+                            //loadingPB.setVisibility(View.GONE);
+                            List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                            for (DocumentSnapshot documentSnapshot : list) {
+                                // after getting this list we are passing
+                                // that list to our object class.
+                                MessageModel chat = documentSnapshot.toObject(MessageModel.class);
+
+                                // and we will pass this object class
+                                // inside our arraylist which we have
+                                // created for recycler view.
+                                chatArrayList.add(chat);
+                            }
+                            // after adding the data to recycler view.
+                            // we are calling recycler view notifuDataSetChanged
+                            // method to notify that data has been changed in recycler view.
+                            chatRvAdapter.notifyDataSetChanged();
+                        } else {
+                            // if the snapshot is empty we are displaying a toast message.
+                            Toast.makeText(ChatMessageFirestoreActivity.this, "No data found in Database", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // if we do not get any data or any error we are displaying
+                        // a toast message that we do not get any data
+                        Toast.makeText(ChatMessageFirestoreActivity.this, "Fail to get the data.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+*/
+
+        // this is a realtime listener
+        query.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot snapshot, @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    Log.w(TAG, "Listen failed.", error);
+                    return;
+                }
+                if (snapshot != null) {
+                    //Log.d(TAG, "Current data: " + snapshot.getQuery()..getData());
+                    if (!snapshot.isEmpty()) {
+                        // if the snapshot is not empty we are
+                        // hiding our progress bar and adding
+                        // our data in a list.
+                        //loadingPB.setVisibility(View.GONE);
+                        List<DocumentSnapshot> list = snapshot.getDocuments();
+                        for (DocumentSnapshot documentSnapshot : list) {
+                            // after getting this list we are passing
+                            // that list to our object class.
+                            MessageModel chat = documentSnapshot.toObject(MessageModel.class);
+                            // and we will pass this object class
+                            // inside our arraylist which we have
+                            // created for recycler view.
+                            chatArrayList.add(chat);
+                        }
+                        // after adding the data to recycler view.
+                        // we are calling recycler view notifuDataSetChanged
+                        // method to notify that data has been changed in recycler view.
+                        chatRvAdapter.notifyDataSetChanged();
+                        linearLayoutManager.scrollToPosition(chatRvAdapter.getItemCount() - 1);
+                    } else {
+                        // if the snapshot is empty we are displaying a toast message.
+                        Toast.makeText(ChatMessageFirestoreActivityOrg.this, "No data found in Database", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Log.d(TAG, "Current data: null");
+                }
+            }
+        });
 
         edtMessageLayout.setEndIconOnClickListener(new View.OnClickListener() {
             @Override
@@ -136,8 +227,6 @@ public class ChatMessageFirestoreActivity extends AppCompatActivity {
                     return;
                 }
                 //showProgressBar();
-
-                //adapter.startListening();
 
                 // get the roomId by comparing 2 UID strings
                 //String roomId = getRoomId(authUserId, receiveUserId);
@@ -179,72 +268,6 @@ public class ChatMessageFirestoreActivity extends AppCompatActivity {
             }
         });
 
-    }
-
-    private void queryList() {
-        Log.i(TAG, "queryList");
-        //adapter.startListening();
-        // Create the query and the FirestoreRecyclerOptions
-        CollectionReference collectionReference = firestoreDatabase
-                .collection(CHILD_MESSAGES)
-                .document(roomId)
-                .collection(CHILD_MESSAGES_SUB);
-        // sort list by message time
-        Query query = collectionReference.orderBy("messageTime", Query.Direction.ASCENDING);
-
-        FirestoreRecyclerOptions<MessageModel> options = new FirestoreRecyclerOptions.Builder<MessageModel>()
-                .setQuery(query, MessageModel.class)
-                .build();
-
-        // Create the RecyclerViewAdapter
-        adapter = new FirestoreRecyclerAdapter<MessageModel, MessageFirestoreHolder>(options) {
-            @NonNull
-            @Override
-            public MessageFirestoreHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.chat_firestore_item, parent, false);
-
-                return new MessageFirestoreHolder(view);
-            }
-
-            @Override
-            protected void onBindViewHolder(@NonNull MessageFirestoreHolder holder, int position, @NonNull MessageModel model) {
-                System.out.println("### onBindViewHolder position: " + position);
-                System.out.println("### model.getMessage: " + model.getMessage());
-                System.out.println("### model.getSenderId: " + model.getSenderId());
-                holder.messageView.setText(model.getMessage());
-                SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yy HH:mm:ss");
-                String messageTime = dateFormat.format(model.getMessageTime());
-                holder.messageTimeView.setText(messageTime);
-
-                /*
-                holder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        System.out.println("*** SelectUser uid: " + model.getUserId());
-                        returnIntent.putExtra("UID", model.getUserId());
-                        returnIntent.putExtra("EMAIL", model.getUserMail());
-                        returnIntent.putExtra("DISPLAYNAME", model.getUserName());
-                        startActivity(returnIntent);
-                        finish();
-                    }
-                });*/
-            }
-        };
-        listFirestore.setAdapter(adapter);
-        listFirestore.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        adapter.startListening();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        adapter.stopListening();
     }
 
     /**
