@@ -35,6 +35,10 @@ public class UploadImageDatabaseActivity extends AppCompatActivity {
 
     // see https://www.youtube.com/watch?v=_ao-ylMNypg
 
+    /**
+     * This class does NOT use FirestoreUi but Firestore only
+     */
+
     private CircleImageView profileImageView;
     private Button selectImage;
     private final int PICK_IMAGE_REQUEST = 12;

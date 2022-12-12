@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
     Button firestoreDatabaseUserProfile, firestoreDatabaseSelectUser, firestoreDatabaseSelectUserRv;
     Button firestoreDatabaseChatMessage;
     Button images, uploadImage, listImages;
-    Button uploadCropImage;
+    Button uploadCropImage, uploadCropImageNotUi;
 
     static final String TAG = "FirebaseUiMain";
 
@@ -246,6 +246,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Log.d(TAG, "upload an cropped image to Storage");
+                Intent intent = new Intent(MainActivity.this, UploadImageCroppedActivity.class);
+                startActivity(intent);
+                //finish();
+            }
+        });
+
+        uploadCropImageNotUi = findViewById(R.id.btnMainUploadImageCroppedNotUi);
+        uploadCropImageNotUi.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "upload an cropped image to Storage");
                 Intent intent = new Intent(MainActivity.this, UploadImageDatabaseActivity.class);
                 startActivity(intent);
                 //finish();
@@ -278,6 +289,7 @@ public class MainActivity extends AppCompatActivity {
         images.setEnabled(isSignedIn);
         uploadImage.setEnabled(isSignedIn);
         uploadCropImage.setEnabled(isSignedIn);
+        uploadCropImageNotUi.setEnabled(isSignedIn);
         listImages.setEnabled(isSignedIn);
     }
 
