@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     com.google.android.material.textfield.TextInputEditText signedInUser;
     Button signInWithEmailAndPassword;
     Button databaseUserProfile, databaseSendMessage, databaseListUser, databaseListUserRv;
+    Button databaseUpdateUserImage;
     Button firestoreDatabaseUserProfile, firestoreDatabaseSelectUser, firestoreDatabaseSelectUserRv;
     Button firestoreDatabaseChatMessage;
     Button images, uploadImage, listImages;
@@ -111,6 +112,17 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Log.d(TAG, "show the user profile");
                 Intent intent = new Intent(MainActivity.this, DatabaseUserActivity.class);
+                startActivity(intent);
+                //finish();
+            }
+        });
+
+        databaseUpdateUserImage = findViewById(R.id.btnMainDatabaseUserImage);
+        databaseUpdateUserImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "update the user image");
+                Intent intent = new Intent(MainActivity.this, UpdateUserImageDatabaseActivity.class);
                 startActivity(intent);
                 //finish();
             }
@@ -242,6 +254,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void activeButtonsWhileUserIsSignedIn(boolean isSignedIn) {
         databaseUserProfile.setEnabled(isSignedIn);
+        databaseUpdateUserImage.setEnabled(isSignedIn);
         databaseListUser.setEnabled(isSignedIn);
         databaseListUserRv.setEnabled(isSignedIn);
         databaseSendMessage.setEnabled(isSignedIn);
