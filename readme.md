@@ -25,7 +25,7 @@ Source code: https://github.com/Waqas334/LearningCloudStorage
 A good comprehensive article about FirebaseUi (AuthUi, RT DatabaseUi, FirestoreUi and StorageUi): 
 https://www.ericthecoder.com/2018/05/05/a-comprehensive-guide-to-firebaseui-the-shortcut-to-authentication-firestore-and-storage/
 
-The demp app: https://github.com/ericdecanini/FirebaseUIDemo
+The demo app: https://github.com/ericdecanini/FirebaseUIDemo
 
 Storage rules:
 ```plaintext

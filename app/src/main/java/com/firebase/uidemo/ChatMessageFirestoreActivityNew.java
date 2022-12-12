@@ -1,18 +1,22 @@
 package com.firebase.uidemo;
 
 import android.content.Intent;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -22,28 +26,32 @@ import com.firebase.uidemo.models.MessageModel;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
 
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
-public class ChatMessageFirestoreActivity extends AppCompatActivity {
+public class ChatMessageFirestoreActivityNew extends AppCompatActivity {
 
     static final String TAG = "ChatMessageFirestore";
 
     TextView chatHeader;
     com.google.android.material.textfield.TextInputEditText edtMessage;
     com.google.android.material.textfield.TextInputLayout edtMessageLayout;
-    RecyclerView chatList;
+
+    RecyclerView listFirestore;
     FirestoreRecyclerAdapter adapter;
+
+
+
+    //RecyclerView chatList;
+    //private ArrayList<MessageModel> chatArrayList;
+    //private ChatFirestoreRvAdapter chatRvAdapter;
+    //LinearLayoutManager linearLayoutManager;
 
     private static String authUserId = "", authUserEmail, authDisplayName, authPhotoUrl;
     private static String receiveUserId = "", receiveUserEmail = "", receiveUserDisplayName = "";
@@ -57,12 +65,13 @@ public class ChatMessageFirestoreActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat_message_firestore_org);
+        setContentView(R.layout.activity_chat_message_firestore);
 
         chatHeader = findViewById(R.id.tvChatFirestoreHeader);
         edtMessageLayout = findViewById(R.id.etChatFirestoreMessageLayout);
         edtMessage = findViewById(R.id.etChatFirestoreMessage);
-        chatList = findViewById(R.id.rvChatFirestore);
+
+        listFirestore = findViewById(R.id.rvChatFirestoreRv);
 
         // don't show the keyboard on startUp
         //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
@@ -80,10 +89,12 @@ public class ChatMessageFirestoreActivity extends AppCompatActivity {
             roomId = getRoomId(authUserId, receiveUserId);
             Log.i(TAG, "selectedUid: " + receiveUserId);
             Log.i(TAG, "we chat in roomId: " + roomId);
+            //adapter.startListening();
         } else {
             // no userId was given
             Log.e(TAG, "no userId was given, abort");
             roomId = "";
+            adapter.getStateRestorationPolicy();
         }
         receiveUserEmail = intent.getStringExtra("EMAIL");
         if (receiveUserEmail != null) {
@@ -123,6 +134,8 @@ public class ChatMessageFirestoreActivity extends AppCompatActivity {
                     return;
                 }
                 //showProgressBar();
+
+                //adapter.startListening();
 
                 // get the roomId by comparing 2 UID strings
                 //String roomId = getRoomId(authUserId, receiveUserId);
@@ -167,6 +180,8 @@ public class ChatMessageFirestoreActivity extends AppCompatActivity {
     }
 
     private void queryList() {
+        Log.i(TAG, "queryList");
+        //adapter.startListening();
         // Create the query and the FirestoreRecyclerOptions
         CollectionReference collectionReference = firestoreDatabase
                 .collection(CHILD_MESSAGES)
@@ -179,27 +194,72 @@ public class ChatMessageFirestoreActivity extends AppCompatActivity {
                 .setQuery(query, MessageModel.class)
                 .build();
 
+        RelativeLayout mMessageContainer = findViewById(R.id.message_container);
+        LinearLayout mMessageLayout = findViewById(R.id.messageLayout);
+        int mGreen300 = ContextCompat.getColor(getApplicationContext(), R.color.material_green_300);
+        int mGray300 = ContextCompat.getColor(getApplicationContext(), R.color.material_gray_300);
+
         // Create the RecyclerViewAdapter
-        adapter = new FirestoreRecyclerAdapter<MessageModel, MessageFirestoreHolder>(options) {
+        adapter = new FirestoreRecyclerAdapter<MessageModel, MessageHolder>(options) {
             @NonNull
             @Override
-            public MessageFirestoreHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            public MessageHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.chat_firestore_item, parent, false);
+                        //.inflate(R.layout.chat_firestore_item, parent, false);
+                        .inflate(R.layout.message, parent, false);
 
-                return new MessageFirestoreHolder(view);
+                return new MessageHolder(view);
             }
 
             @Override
-            protected void onBindViewHolder(@NonNull MessageFirestoreHolder holder, int position, @NonNull MessageModel model) {
-                holder.messageView.setText(model.getMessage());
-                holder.messageTimeView.setText(String.valueOf(model.getMessageTime()));
-            }
-        };
+            protected void onBindViewHolder(@NonNull MessageHolder holder, int position, @NonNull MessageModel model) {
+                System.out.println("### onBindViewHolder position: " + position);
+                System.out.println("### model.getMessage: " + model.getMessage());
+                System.out.println("### model.getSenderId: " + model.getSenderId());
+                //holder.messageView.setText(model.getMessage());
+                holder.mTextField.setText(model.getMessage());
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yy HH:mm:ss");
+                String messageTime = dateFormat.format(model.getMessageTime());
+                //holder.messageTimeView.setText(messageTime);
+                holder.mNameField.setText(messageTime);
 
-        chatList.setAdapter(adapter);
-        chatList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+                FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                //setIsSender(currentUser != null && message.getUid().equals(currentUser.getUid()));
+                //setIsSender(currentUser != null && model.getSenderId().equals(currentUser.getUid()));
+                boolean setIsSender = currentUser != null && model.getSenderId().equals(currentUser.getUid());
+                int color;
+                if (setIsSender) {
+                    color = mGreen300;
+                    mMessageContainer.setGravity(Gravity.END);
+                } else {
+                    color = mGray300;
+                    mMessageContainer.setGravity(Gravity.START);
+                }
+
+                ((GradientDrawable) mMessageLayout.getBackground()).setColor(color);
+
+
+                /*
+                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        System.out.println("*** SelectUser uid: " + model.getUserId());
+                        returnIntent.putExtra("UID", model.getUserId());
+                        returnIntent.putExtra("EMAIL", model.getUserMail());
+                        returnIntent.putExtra("DISPLAYNAME", model.getUserName());
+                        startActivity(returnIntent);
+                        finish();
+                    }
+                });*/
+
+            }
+
+        };
+        listFirestore.setAdapter(adapter);
+        listFirestore.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
     }
+
+
 
     @Override
     protected void onStart() {
