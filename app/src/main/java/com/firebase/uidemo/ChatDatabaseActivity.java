@@ -48,9 +48,6 @@ public class ChatDatabaseActivity extends AppCompatActivity implements FirebaseA
     private FirebaseAuth mFirebaseAuth;
     FirebaseRecyclerAdapter firebaseRecyclerAdapter;
 
-    @NonNull
-    protected Query sMessageQuery; //=  FirebaseDatabase.getInstance().getReference().child("chats").limitToLast(50);
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

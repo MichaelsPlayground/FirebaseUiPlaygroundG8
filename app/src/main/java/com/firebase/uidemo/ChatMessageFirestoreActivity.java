@@ -1,18 +1,22 @@
 package com.firebase.uidemo;
 
 import android.content.Intent;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -22,6 +26,7 @@ import com.firebase.uidemo.models.MessageModel;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -167,6 +172,68 @@ public class ChatMessageFirestoreActivity extends AppCompatActivity {
     }
 
     private void queryList() {
+
+        // colors for chat bubbles
+        int mGreen300 = ContextCompat.getColor(getApplicationContext(), R.color.material_green_300);
+        int mGray300 = ContextCompat.getColor(getApplicationContext(), R.color.material_gray_300);
+        //LinearLayout mMessageLayout = findViewById(R.id.firestore_chat_message_layout);
+
+        // Create the query and the FirestoreRecyclerOptions
+        CollectionReference collectionReference = firestoreDatabase
+                .collection(CHILD_MESSAGES)
+                .document(roomId)
+                .collection(CHILD_MESSAGES_SUB);
+        // sort list by message time
+        Query query = collectionReference.orderBy("messageTime", Query.Direction.ASCENDING);
+
+        FirestoreRecyclerOptions<MessageModel> options = new FirestoreRecyclerOptions.Builder<MessageModel>()
+                .setQuery(query, MessageModel.class)
+                .build();
+
+        // Create the RecyclerViewAdapter
+        adapter = new FirestoreRecyclerAdapter<MessageModel, MessageFirestoreHolder>(options) {
+            @NonNull
+            @Override
+            public MessageFirestoreHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.firestore_chat_message, parent, false);
+                return new MessageFirestoreHolder(view);
+            }
+
+            @Override
+            protected void onBindViewHolder(@NonNull MessageFirestoreHolder holder, int position, @NonNull MessageModel model) {
+                holder.messageView.setText(model.getMessage());
+                holder.messageTimeView.setText(String.valueOf(model.getMessageTime()));
+
+                // setting the color and position (left/right)
+                //boolean setIsSender = currentUser != null && model.getSenderId().equals(currentUser.getUid());
+                boolean setIsSender = model.getSenderId().equals(authUserId);
+                int color;
+                if (setIsSender) {
+                    color = mGreen300;
+                    holder.mMessageContainer.setGravity(Gravity.END);
+                } else {
+                    color = mGray300;
+                    holder.mMessageContainer.setGravity(Gravity.START);
+                }
+                ((GradientDrawable) holder.mMessageLayout.getBackground()).setColor(color);
+            }
+        };
+
+        // scroll down to last message
+        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                //mBinding.messagesList.smoothScrollToPosition(adapter.getItemCount());
+                chatList.smoothScrollToPosition(adapter.getItemCount());
+            }
+        });
+
+        chatList.setAdapter(adapter);
+        chatList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+    }
+
+    private void queryListOrg() {
         // Create the query and the FirestoreRecyclerOptions
         CollectionReference collectionReference = firestoreDatabase
                 .collection(CHILD_MESSAGES)

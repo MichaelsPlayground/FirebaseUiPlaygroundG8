@@ -39,7 +39,7 @@ public class MessageHolder extends RecyclerView.ViewHolder{
         //mLeftArrow = itemView.findViewById(R.id.left_arrow);
         //mRightArrow = itemView.findViewById(R.id.right_arrow);
         mMessageContainer = itemView.findViewById(R.id.message_container);
-        mMessage = itemView.findViewById(R.id.message);
+        mMessage = itemView.findViewById(R.id.messageLayout);
         mGreen300 = ContextCompat.getColor(itemView.getContext(), R.color.material_green_300);
         mGray300 = ContextCompat.getColor(itemView.getContext(), R.color.material_gray_300);
     }
