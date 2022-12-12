@@ -301,6 +301,16 @@
                 android:text="crop image and upload to Storage" />
 
             <Button
+                android:id="@+id/btnMainUploadImageResized"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:enabled="false"
+                android:text="upload an resized image to Storage" />
+
+            <Button
                 android:id="@+id/btnMainUploadImageCroppedNotUi"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

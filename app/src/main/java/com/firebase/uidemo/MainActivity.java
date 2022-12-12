@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
     Button firestoreDatabaseUserProfile, firestoreDatabaseSelectUser, firestoreDatabaseSelectUserRv;
     Button firestoreDatabaseChatMessage;
     Button images, uploadImage, listImages;
-    Button uploadCropImage, uploadCropImageNotUi;
+    Button uploadResizedImage, uploadCropImage, uploadCropImageNotUi;
 
     static final String TAG = "FirebaseUiMain";
 
@@ -241,6 +241,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        uploadResizedImage = findViewById(R.id.btnMainUploadImageResized);
+        uploadResizedImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "upload an resized image to Storage");
+                Intent intent = new Intent(MainActivity.this, UploadImageResizedActivity.class);
+                startActivity(intent);
+                //finish();
+            }
+        });
+
         uploadCropImage = findViewById(R.id.btnMainUploadImageCropped);
         uploadCropImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -289,6 +300,7 @@ public class MainActivity extends AppCompatActivity {
         images.setEnabled(isSignedIn);
         uploadImage.setEnabled(isSignedIn);
         uploadCropImage.setEnabled(isSignedIn);
+        uploadResizedImage.setEnabled(isSignedIn);
         uploadCropImageNotUi.setEnabled(isSignedIn);
         listImages.setEnabled(isSignedIn);
     }
