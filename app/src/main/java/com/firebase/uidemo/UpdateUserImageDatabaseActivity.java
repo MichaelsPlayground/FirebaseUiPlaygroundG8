@@ -84,7 +84,7 @@ public class UpdateUserImageDatabaseActivity extends AppCompatActivity {
         //mDatabase = FirebaseDatabase.getInstance("https://fir-playground-1856e-default-rtdb.europe-west1.firebasedatabase.app/").getReference();
         // the following can be used if the database server location is us
         mDatabase = FirebaseDatabase.getInstance().getReference();
-        userProfileStorageReference= FirebaseStorage.getInstance().getReference().child("profile_images");
+        userProfileStorageReference = FirebaseStorage.getInstance().getReference().child("profile_images");
 
         Button loadData = findViewById(R.id.btnDatabaseUserLoad);
         // todo change to iv
@@ -153,10 +153,10 @@ public class UpdateUserImageDatabaseActivity extends AppCompatActivity {
         userProfileImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent galleryIntent=new Intent();
+                Intent galleryIntent = new Intent();
                 galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
                 galleryIntent.setType("image/*");
-                startActivityForResult(galleryIntent,START_GALLERY_REQUEST);
+                startActivityForResult(galleryIntent, START_GALLERY_REQUEST);
             }
         });
 
@@ -203,58 +203,54 @@ public class UpdateUserImageDatabaseActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == START_GALLERY_REQUEST && resultCode == RESULT_OK && data != null)
-        {
+        if (requestCode == START_GALLERY_REQUEST && resultCode == RESULT_OK && data != null) {
             Uri uriimage = data.getData();
             // Start picker to get image for cropping and then use the image in cropping activity.
             CropImage.activity()
                     .setGuidelines(CropImageView.Guidelines.ON)
-                    .setAspectRatio(1,1)
+                    .setAspectRatio(1, 1)
                     .start(this);
         }
 
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
 
-            if(resultCode == RESULT_OK)
-            {
+            if (resultCode == RESULT_OK) {
                 Uri resultUri = result.getUri();
                 StorageReference filepath = userProfileStorageReference.child(mAuth + ".jpg");
-                filepath.putFile(resultUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        final Task<Uri> firebaseUri = taskSnapshot.getStorage().getDownloadUrl();
-                        firebaseUri.addOnSuccessListener(new OnSuccessListener<Uri>() {
+                filepath.putFile(resultUri)
+                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                             @Override
-                            public void onSuccess(Uri uri) {
-                                final String downloadUrl = uri.toString();
-                                mDatabase.child("users").child(authUserId).child("userPhotoUrl")
-                                        .setValue(downloadUrl).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
-                                                if(task.isSuccessful())
-                                                {
-                                                    Log.i(TAG, "downloadUrl: " + downloadUrl);
-                                                    Toast.makeText(UpdateUserImageDatabaseActivity.this, "Image saved in database successfuly", Toast.LENGTH_SHORT).show();
-                                                    userPhotoUrl.setText(downloadUrl);
-                                                    // todo reload changed image
-                                                    // Download directly from StorageReference using Glide
-                                                    // (See MyAppGlideModule for Loader registration)
-                                                    GlideApp.with(getApplicationContext())
-                                                            .load(downloadUrl)
-                                                            .into(userProfileImage);
-                                                }
-                                                else
-                                                {
-                                                    String message = task.getException().toString();
-                                                    Toast.makeText(UpdateUserImageDatabaseActivity.this, "Error: " + message,Toast.LENGTH_SHORT).show();
-                                                }
-                                            }
-                                        });
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                final Task<Uri> firebaseUri = taskSnapshot.getStorage().getDownloadUrl();
+                                firebaseUri.addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                    @Override
+                                    public void onSuccess(Uri uri) {
+                                        final String downloadUrl = uri.toString();
+                                        mDatabase.child("users").child(authUserId).child("userPhotoUrl")
+                                                .setValue(downloadUrl).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                        if (task.isSuccessful()) {
+                                                            Log.i(TAG, "downloadUrl: " + downloadUrl);
+                                                            Toast.makeText(UpdateUserImageDatabaseActivity.this, "Image saved in database successfuly", Toast.LENGTH_SHORT).show();
+                                                            userPhotoUrl.setText(downloadUrl);
+                                                            // todo reload changed image
+                                                            // Download directly from StorageReference using Glide
+                                                            // (See MyAppGlideModule for Loader registration)
+                                                            GlideApp.with(getApplicationContext())
+                                                                    .load(downloadUrl)
+                                                                    .into(userProfileImage);
+                                                        } else {
+                                                            String message = task.getException().toString();
+                                                            Toast.makeText(UpdateUserImageDatabaseActivity.this, "Error: " + message, Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    }
+                                                });
+                                    }
+                                });
                             }
                         });
-                    }
-                });
 
             }
         }
@@ -265,7 +261,7 @@ public class UpdateUserImageDatabaseActivity extends AppCompatActivity {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser != null){
+        if (currentUser != null) {
             reload();
         } else {
             signedInUser.setText("no user is signed in");

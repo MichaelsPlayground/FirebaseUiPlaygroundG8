@@ -1,5 +1,7 @@
 package com.firebase.uidemo;
 
+import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -16,21 +18,24 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.firebase.uidemo.models.UserModel;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.mikhaellopez.circularimageview.CircularImageView;
-import com.squareup.picasso.Picasso;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionDeniedResponse;
+import com.karumi.dexter.listener.PermissionGrantedResponse;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.single.PermissionListener;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -47,12 +52,17 @@ public class UpdateUserImageDatabase2Activity extends AppCompatActivity {
     https://firebaseopensource.com/projects/firebase/firebaseui-android/storage/readme
      */
 
-    private CircularImageView userProfileImage;
+    /**
+     * This class is NOT using firestoreUi for the upload purposes
+     */
+
+    private CircleImageView profileImageView;
     com.google.android.material.textfield.TextInputEditText signedInUser;
     com.google.android.material.textfield.TextInputEditText userId, userEmail, userPhotoUrl, userPublicKey, userName;
     TextView warningNoData;
 
-    private static final String TAG = "UpdateUserProfileImage";
+    private static final String TAG = "UpdateUserProfileImage2";
+
     private static int START_GALLERY_REQUEST = 1;
     // get the data from auth
     private static String authUserId = "", authUserEmail, authDisplayName, authPhotoUrl;
@@ -62,19 +72,12 @@ public class UpdateUserImageDatabase2Activity extends AppCompatActivity {
     private StorageReference userProfileStorageReference;
     ProgressBar progressBar;
 
-
-    // https://stackoverflow.com/questions/57376528/how-to-update-profile-image-to-firebase-after-select-picture-and-crop-it
-    //private FirebaseAuth mAuth;
-    private DatabaseReference UsersRef;
-    private CircleImageView ProfileImage;
-    private StorageReference UserProfileImageRef;
-    String currentUserID;
-    final static int Gallery_Pick = 1;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_update_user_image_database);
+        setContentView(R.layout.activity_update_user_image_database_2);
 
         signedInUser = findViewById(R.id.etDatabaseUserSignedInUser);
         progressBar = findViewById(R.id.pbDatabaseUser);
@@ -85,6 +88,10 @@ public class UpdateUserImageDatabase2Activity extends AppCompatActivity {
         userPhotoUrl = findViewById(R.id.etDatabaseUserPhotoUrl);
         userPublicKey = findViewById(R.id.etDatabaseUserPublicKey);
         userName = findViewById(R.id.etDatabaseUserUserName);
+
+        profileImageView = findViewById(R.id.ivUserProfileImage);
+
+        progressDialog = new ProgressDialog(this);
 
         // don't show the keyboard on startUp
         //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
@@ -99,38 +106,9 @@ public class UpdateUserImageDatabase2Activity extends AppCompatActivity {
         mDatabase = FirebaseDatabase.getInstance().getReference();
         userProfileStorageReference= FirebaseStorage.getInstance().getReference().child("profile_images");
 
-        mAuth = FirebaseAuth.getInstance();
-        currentUserID = mAuth.getCurrentUser().getUid();
-        UsersRef= FirebaseDatabase.getInstance().getReference().child("Users").child(currentUserID);
-        UserProfileImageRef = FirebaseStorage.getInstance().getReference().child("Profile Images");
-
-        UsersRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot)
-            {
-                if(dataSnapshot.exists())
-                {
-                    if (dataSnapshot.hasChild("profileimage"))
-                    {
-                        String image = dataSnapshot.child("profileimage").getValue().toString();
-                        Picasso.with(UpdateUserImageDatabase2Activity.this).load(image).placeholder(R.drawable.profile_image).into(ProfileImage);
-                    }
-                    else
-                    {
-                        Toast.makeText(UpdateUserImageDatabase2Activity.this, "Please select profile image first.", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
 
         Button loadData = findViewById(R.id.btnDatabaseUserLoad);
-        // todo change to iv
-        userProfileImage = findViewById(R.id.ivUserProfileImage);
+
         Button savaData = findViewById(R.id.btnDatabaseUserSave);
         Button backToMain = findViewById(R.id.btnDatabaseUserToMain);
 
@@ -176,7 +154,7 @@ public class UpdateUserImageDatabase2Activity extends AppCompatActivity {
                                     // (See MyAppGlideModule for Loader registration)
                                     GlideApp.with(view.getContext())
                                             .load(photoUrl)
-                                            .into(userProfileImage);
+                                            .into(profileImageView);
 
                                 }
                             }
@@ -192,13 +170,10 @@ public class UpdateUserImageDatabase2Activity extends AppCompatActivity {
         });
 
         // click on profile image to load a new one
-        userProfileImage.setOnClickListener(new View.OnClickListener() {
+        profileImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent galleryIntent=new Intent();
-                galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
-                galleryIntent.setType("image/*");
-                startActivityForResult(galleryIntent,START_GALLERY_REQUEST);
+                checkPermissions();
             }
         });
 
@@ -242,101 +217,50 @@ public class UpdateUserImageDatabase2Activity extends AppCompatActivity {
 
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if(requestCode==Gallery_Pick && resultCode==RESULT_OK && data!=null)
-        {
-            Uri ImageUri = data.getData();
-
-            CropImage.activity()
-                    .setGuidelines(CropImageView.Guidelines.ON)
-                    .setAspectRatio(1, 1)
-                    .start(this);
-        }
-
-        if(requestCode==CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE)
-        {
-            CropImage.ActivityResult result = CropImage.getActivityResult(data);
-
-            if(resultCode == RESULT_OK)
-            {
-                //loadingBar.setTitle("Profile Image");
-                //loadingBar.setMessage("Please wait, while we updating your profile image...");
-                //loadingBar.show();
-                //loadingBar.setCanceledOnTouchOutside(true);
-
-                Uri resultUri = result.getUri();
-
-                StorageReference filePath = UserProfileImageRef.child(currentUserID + ".jpg");
-
-                filePath.putFile(resultUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+    private void checkPermissions() {
+        Dexter.withContext(this)
+                .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+                .withListener(new PermissionListener() {
                     @Override
-                    public void onComplete(@NonNull final Task<UploadTask.TaskSnapshot> task)
-                    {
-                        if(task.isSuccessful())
-                        {
-                            Toast.makeText(UpdateUserImageDatabase2Activity.this, "Profile Image stored successfully to Firebase storage...", Toast.LENGTH_SHORT).show();
-
-                            final String downloadUrl = task.getResult().getDownloadUrl().toString();
-
-                            UsersRef.child("profileimage").setValue(downloadUrl)
-                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task)
-                                        {
-                                            if(task.isSuccessful())
-                                            {
-                                                Intent selfIntent = new Intent(UpdateUserImageDatabase2Activity.this, UpdateUserImageDatabase2Activity.class);
-                                                startActivity(selfIntent);
-
-                                                Toast.makeText(UpdateUserImageDatabase2Activity.this, "Profile Image stored to Firebase Database Successfully...", Toast.LENGTH_SHORT).show();
-                                                //loadingBar.dismiss();
-                                            }
-                                            else
-                                            {
-                                                String message = task.getException().getMessage();
-                                                Toast.makeText(UpdateUserImageDatabase2Activity.this, "Error Occured: " + message, Toast.LENGTH_SHORT).show();
-                                                //loadingBar.dismiss();
-                                            }
-                                        }
-                                    });
-                        }
+                    public void onPermissionGranted(PermissionGrantedResponse permissionGrantedResponse) {
+                        Intent intent = new Intent();
+                        intent.setAction(Intent.ACTION_GET_CONTENT);
+                        intent.setType("image/*");
+                        startActivityForResult(intent, START_GALLERY_REQUEST);
                     }
-                });
-            }
-            else
-            {
-                Toast.makeText(this, "Error Occured: Image can not be cropped. Try Again.", Toast.LENGTH_SHORT).show();
-                //loadingBar.dismiss();
-            }
-        }
+                    @Override
+                    public void onPermissionDenied(PermissionDeniedResponse permissionDeniedResponse) {
+                    }
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(PermissionRequest permissionRequest, PermissionToken permissionToken) {
+                        permissionToken.continuePermissionRequest();
+                    }
+                }).check();
     }
 
-    /*
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == START_GALLERY_REQUEST && resultCode == RESULT_OK && data != null)
-        {
-            Uri uriimage = data.getData();
-            // Start picker to get image for cropping and then use the image in cropping activity.
-            CropImage.activity()
-                    .setGuidelines(CropImageView.Guidelines.ON)
-                    .setAspectRatio(1,1)
-                    .start(this);
+
+        if (requestCode == START_GALLERY_REQUEST && resultCode == RESULT_OK) {
+            if (data != null) {
+                resizeImage(data.getData());
+            }
         }
-
-        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
+            profileImageView.setImageURI(result.getUri());
+            uploadImage(result.getUri());
+        }
+    }
 
-            if(resultCode == RESULT_OK)
-            {
-                Uri resultUri = result.getUri();
-                StorageReference filepath = userProfileStorageReference.child(mAuth + ".jpg");
-                filepath.putFile(resultUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+    private void uploadImage(Uri uri) {
+        progressDialog.setCancelable(false);
+        progressDialog.setMessage("Uploading...");
+        progressDialog.show();
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("profile_images").child(mAuth.getUid() + ".jpg");
+        storageReference.putFile(uri)
+                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                         final Task<Uri> firebaseUri = taskSnapshot.getStorage().getDownloadUrl();
@@ -348,8 +272,7 @@ public class UpdateUserImageDatabase2Activity extends AppCompatActivity {
                                         .setValue(downloadUrl).addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
-                                                if(task.isSuccessful())
-                                                {
+                                                if (task.isSuccessful()) {
                                                     Log.i(TAG, "downloadUrl: " + downloadUrl);
                                                     Toast.makeText(UpdateUserImageDatabase2Activity.this, "Image saved in database successfuly", Toast.LENGTH_SHORT).show();
                                                     userPhotoUrl.setText(downloadUrl);
@@ -358,23 +281,51 @@ public class UpdateUserImageDatabase2Activity extends AppCompatActivity {
                                                     // (See MyAppGlideModule for Loader registration)
                                                     GlideApp.with(getApplicationContext())
                                                             .load(downloadUrl)
-                                                            .into(userProfileImage);
-                                                }
-                                                else
-                                                {
+                                                            .into(profileImageView);
+                                                } else {
                                                     String message = task.getException().toString();
-                                                    Toast.makeText(UpdateUserImageDatabase2Activity.this, "Error: " + message,Toast.LENGTH_SHORT).show();
+                                                    Toast.makeText(UpdateUserImageDatabase2Activity.this, "Error: " + message, Toast.LENGTH_SHORT).show();
                                                 }
+                                                progressDialog.dismiss();
                                             }
                                         });
                             }
                         });
                     }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(UpdateUserImageDatabase2Activity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        progressDialog.cancel();
+                    }
                 });
 
-            }
-        }
-    }*/
+                /* original
+                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        progressDialog.dismiss();
+                        Toast.makeText(getApplicationContext(), "Image upload success", Toast.LENGTH_SHORT).show();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        progressDialog.cancel();
+                        Toast.makeText(getApplicationContext(), "Image upload failure " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }); */
+    }
+
+    private void resizeImage(Uri data) {
+        CropImage.activity(data)
+                .setMultiTouchEnabled(true)
+                .setAspectRatio(1 , 1)
+                .setGuidelines(CropImageView.Guidelines.ON)
+                //.setMaxCropResultSize(512, 512)
+                //.setOutputCompressQuality(50)
+                .start(this);
+    }
+
 
     @Override
     public void onStart() {

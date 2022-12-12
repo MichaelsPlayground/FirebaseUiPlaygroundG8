@@ -51,7 +51,8 @@ dependencies {
     // show user profile image in a circle
     implementation 'com.mikhaellopez:circularimageview:4.2.0'
     // crop the user profile image
-    implementation 'com.theartofdev.edmodo:android-image-cropper:2.8.0'
+    api 'com.theartofdev.edmodo:android-image-cropper:2.8.0'
+    implementation 'com.karumi:dexter:6.2.3'
 
     implementation 'com.squareup.picasso:picasso:2.5.2'
     implementation 'de.hdodenhof:circleimageview:2.2.0'

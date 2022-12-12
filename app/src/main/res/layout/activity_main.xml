@@ -152,7 +152,7 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
                 android:enabled="false"
-                android:text="update user picture" />
+                android:text="update user image" />
 
             <Button
                 android:id="@+id/btnMainDatabaseListUser"
@@ -289,6 +289,16 @@
                 android:layout_marginEnd="16dp"
                 android:enabled="false"
                 android:text="upload an image to Storage" />
+
+            <Button
+                android:id="@+id/btnMainUploadImageCropped"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:enabled="false"
+                android:text="crop image and upload to Storage" />
 
             <Button
                 android:id="@+id/btnMainListImages"

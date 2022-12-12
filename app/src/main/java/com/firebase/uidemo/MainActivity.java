@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     Button firestoreDatabaseUserProfile, firestoreDatabaseSelectUser, firestoreDatabaseSelectUserRv;
     Button firestoreDatabaseChatMessage;
     Button images, uploadImage, listImages;
+    Button uploadCropImage;
 
     static final String TAG = "FirebaseUiMain";
 
@@ -122,7 +123,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Log.d(TAG, "update the user image");
-                Intent intent = new Intent(MainActivity.this, UpdateUserImageDatabaseActivity.class);
+                //Intent intent = new Intent(MainActivity.this, UpdateUserImageDatabaseActivity.class);
+                Intent intent = new Intent(MainActivity.this, UpdateUserImageDatabase2Activity.class);
                 startActivity(intent);
                 //finish();
             }
@@ -239,6 +241,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        uploadCropImage = findViewById(R.id.btnMainUploadImageCropped);
+        uploadCropImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "upload an cropped image to Storage");
+                Intent intent = new Intent(MainActivity.this, UploadImageDatabaseActivity.class);
+                startActivity(intent);
+                //finish();
+            }
+        });
+
         listImages = findViewById(R.id.btnMainListImages);
         listImages.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -264,6 +277,7 @@ public class MainActivity extends AppCompatActivity {
         firestoreDatabaseChatMessage.setEnabled(isSignedIn);
         images.setEnabled(isSignedIn);
         uploadImage.setEnabled(isSignedIn);
+        uploadCropImage.setEnabled(isSignedIn);
         listImages.setEnabled(isSignedIn);
     }
 
