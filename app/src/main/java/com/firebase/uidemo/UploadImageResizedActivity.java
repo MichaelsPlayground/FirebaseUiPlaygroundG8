@@ -188,6 +188,7 @@ public class UploadImageResizedActivity extends AppCompatActivity {
 
             // 2. Get the downsized image content as a byte[]
             /*
+            // using a fixed scaleDivider, e.g. 4
             int scaleWidth = fullBitmap.getWidth() / scaleDivider;
             int scaleHeight = fullBitmap.getHeight() / scaleDivider;
             */
