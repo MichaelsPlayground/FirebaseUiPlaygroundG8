@@ -36,6 +36,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -62,7 +63,7 @@ public class ChatMessageFirestoreActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat_message_firestore_org);
+        setContentView(R.layout.activity_chat_message_firestore);
 
         chatHeader = findViewById(R.id.tvChatFirestoreHeader);
         edtMessageLayout = findViewById(R.id.etChatFirestoreMessageLayout);
@@ -168,11 +169,9 @@ public class ChatMessageFirestoreActivity extends AppCompatActivity {
                 //hideProgressBar();
             }
         });
-
     }
 
     private void queryList() {
-
         // colors for chat bubbles
         int mGreen300 = ContextCompat.getColor(getApplicationContext(), R.color.material_green_300);
         int mGray300 = ContextCompat.getColor(getApplicationContext(), R.color.material_gray_300);
@@ -203,7 +202,10 @@ public class ChatMessageFirestoreActivity extends AppCompatActivity {
             @Override
             protected void onBindViewHolder(@NonNull MessageFirestoreHolder holder, int position, @NonNull MessageModel model) {
                 holder.messageView.setText(model.getMessage());
-                holder.messageTimeView.setText(String.valueOf(model.getMessageTime()));
+
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yy HH:mm:ss");
+                String messageTime = dateFormat.format(model.getMessageTime());
+                holder.messageTimeView.setText(messageTime);
 
                 // setting the color and position (left/right)
                 //boolean setIsSender = currentUser != null && model.getSenderId().equals(currentUser.getUid());
