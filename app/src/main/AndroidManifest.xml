@@ -3,13 +3,17 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
-
-    <!-- Required only if your app needs to access images or photos
-     that other apps created. -->
+    <!--
+ Required only if your app needs to access images or photos
+     that other apps created.
+    -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-    <!-- If your app doesn't need to access media files that other apps created,
-     set the "maxSdkVersion" attribute to "28" instead. -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+    <!--
+ If your app doesn't need to access media files that other apps created,
+     set the "maxSdkVersion" attribute to "28" instead.
+    -->
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
 
     <application
@@ -22,6 +26,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FirebaseUiPlayground"
         tools:targetApi="31">
+        <activity
+            android:name=".ListResizedImagesRecyclerviewActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
         <activity
             android:name=".UploadImageDatabaseActivity"
             android:exported="false">

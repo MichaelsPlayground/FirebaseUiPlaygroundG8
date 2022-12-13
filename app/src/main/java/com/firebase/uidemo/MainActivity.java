@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
     Button firestoreDatabaseUserProfile, firestoreDatabaseSelectUser, firestoreDatabaseSelectUserRv;
     Button firestoreDatabaseUpdateUserImage;
     Button firestoreDatabaseChatMessage;
-    Button images, uploadImage, listImages;
+    Button images, uploadImage, listImages, listResizedImages;
     Button uploadResizedImage, uploadCropImage, uploadCropImageNotUi;
 
     static final String TAG = "FirebaseUiMain";
@@ -297,6 +297,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        listResizedImages = findViewById(R.id.btnMainListResizedImages);
+        listResizedImages.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "list images on Storage");
+                Intent intent = new Intent(MainActivity.this, ListResizedImagesRecyclerviewActivity.class);
+                startActivity(intent);
+                //finish();
+            }
+        });
+
     }
 
     private void activeButtonsWhileUserIsSignedIn(boolean isSignedIn) {
@@ -316,6 +327,7 @@ public class MainActivity extends AppCompatActivity {
         uploadResizedImage.setEnabled(isSignedIn);
         uploadCropImageNotUi.setEnabled(isSignedIn);
         listImages.setEnabled(isSignedIn);
+        listResizedImages.setEnabled(isSignedIn);
     }
 
     public void setFirestoreUserOnlineStatus(String userId, boolean onlineStatus) {

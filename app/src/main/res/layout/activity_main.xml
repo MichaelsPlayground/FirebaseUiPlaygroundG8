@@ -341,6 +341,16 @@
                 android:text="list images on Storage" />
 
             <Button
+                android:id="@+id/btnMainListResizedImages"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:enabled="false"
+                android:text="list resized images on Storage in Recyclerview" />
+
+            <Button
                 android:id="@+id/btnMainDownloadImage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
