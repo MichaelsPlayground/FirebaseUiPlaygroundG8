@@ -58,6 +58,9 @@ dependencies {
     implementation 'de.hdodenhof:circleimageview:2.2.0'
 
     implementation 'pub.devrel:easypermissions:3.0.0'
+
+    // for photoPicker integration
+    implementation 'androidx.activity:activity:1.6.1'
 }
 // ADD THIS AT THE BOTTOM
 apply plugin: 'com.google.gms.google-services'

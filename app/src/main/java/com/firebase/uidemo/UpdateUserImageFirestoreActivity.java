@@ -1,9 +1,12 @@
 package com.firebase.uidemo;
 
+import static android.os.ext.SdkExtensions.getExtensionVersion;
+
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -12,6 +15,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -92,6 +98,8 @@ public class UpdateUserImageFirestoreActivity extends AppCompatActivity implemen
     https://levelup.gitconnected.com/read-external-storage-permission-is-deprecated-heres-the-new-way-to-access-android-storage-8ce0644e9955
 
      */
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -192,11 +200,21 @@ public class UpdateUserImageFirestoreActivity extends AppCompatActivity implemen
             @Override
             public void onClick(View v) {
                 Log.i(TAG, "click on profileImage, now check permissions");
-                //checkPermissions();
-                // todo check for build version
-                //readExternalStorageTask();
-                readMediaImagesTask();
 
+                boolean photoPickerAvailable = isPhotoPickerAvailable();
+                System.out.println("*** photoPickerAvailable: " + photoPickerAvailable);
+                /*
+                if (photoPickerAvailable) {
+                  launchPhotoPicker();
+                }
+                */
+                //checkPermissions();
+                // for Android SDK 33+ (Android 13+) we need other permissions
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    readMediaImagesTask();
+                } else {
+                   readExternalStorageTask();
+                }
             }
         });
 
@@ -237,7 +255,44 @@ public class UpdateUserImageFirestoreActivity extends AppCompatActivity implemen
                 finish();
             }
         });
+
+
     }
+
+    /**
+     * photo picker section
+     */
+
+    private boolean isPhotoPickerAvailable() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            return true;
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            return getExtensionVersion(Build.VERSION_CODES.R) >= 2;
+        } else
+            return false;
+    }
+
+    // Registers a photo picker activity launcher in single-select mode.
+    private ActivityResultLauncher<PickVisualMediaRequest> pickMedia =
+            registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+                // Callback is invoked after the user selects a media item or closes the
+                // photo picker.
+                if (uri != null) {
+                    Log.i("PhotoPicker", "Selected URI: " + uri);
+                } else {
+                    Log.i("PhotoPicker", "No media selected");
+                }
+            });
+
+    private void launchPhotoPicker() {
+        // Launch the photo picker and allow the user to choose only images.
+        ActivityResultContracts.PickVisualMedia.VisualMediaType mediaType = (ActivityResultContracts.PickVisualMedia.VisualMediaType) ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE;
+        PickVisualMediaRequest request = new PickVisualMediaRequest.Builder()
+                .setMediaType(mediaType)
+                .build();
+        pickMedia.launch(request);
+    }
+
 
     /**
      * permission check with EasyPermissions
