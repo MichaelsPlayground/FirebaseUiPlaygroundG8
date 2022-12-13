@@ -56,6 +56,8 @@ public class UpdateUserImageDatabase2Activity extends AppCompatActivity {
      * This class is NOT using firestoreUi for the upload purposes
      */
 
+    // todo change permission handling from Dexter to EasyPermissions, see UpdateUserImageFirestoreActivity
+
     private CircleImageView profileImageView;
     com.google.android.material.textfield.TextInputEditText signedInUser;
     com.google.android.material.textfield.TextInputEditText userId, userEmail, userPhotoUrl, userPublicKey, userName;
