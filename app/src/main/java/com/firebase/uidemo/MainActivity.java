@@ -15,7 +15,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Arrays;
@@ -125,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Log.d(TAG, "update the user image");
                 //Intent intent = new Intent(MainActivity.this, UpdateUserImageDatabaseActivity.class);
-                Intent intent = new Intent(MainActivity.this, UpdateUserImageDatabase2Activity.class);
+                Intent intent = new Intent(MainActivity.this, UpdateUserImageDatabaseActivity.class);
                 startActivity(intent);
                 //finish();
             }

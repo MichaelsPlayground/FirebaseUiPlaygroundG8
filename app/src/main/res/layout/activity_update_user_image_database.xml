@@ -180,18 +180,15 @@
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
-            <com.mikhaellopez.circularimageview.CircularImageView
+            <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/ivUserProfileImage"
                 android:layout_width="250dp"
                 android:layout_height="250dp"
-                android:layout_alignParentTop="true"
-                android:layout_centerHorizontal="true"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="8dp"
                 android:src="@drawable/profile_image"
                 app:civ_border_width="5dp"
                 app:civ_border_color="@color/colorPrimary"/>
-
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/etDatabaseUserPhotoUrlLayout"
