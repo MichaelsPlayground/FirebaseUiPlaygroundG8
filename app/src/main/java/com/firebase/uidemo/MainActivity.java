@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     Button databaseUserProfile, databaseSendMessage, databaseListUser, databaseListUserRv;
     Button databaseUpdateUserImage;
     Button firestoreDatabaseUserProfile, firestoreDatabaseSelectUser, firestoreDatabaseSelectUserRv;
+    Button firestoreDatabaseUpdateUserImage;
     Button firestoreDatabaseChatMessage;
     Button images, uploadImage, listImages;
     Button uploadResizedImage, uploadCropImage, uploadCropImageNotUi;
@@ -192,6 +193,18 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        firestoreDatabaseUpdateUserImage = findViewById(R.id.btnMainFirestoreDatabaseUserImage);
+        firestoreDatabaseUpdateUserImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "update the user image on Firestore");
+                //Intent intent = new Intent(MainActivity.this, UpdateUserImageDatabaseActivity.class);
+                Intent intent = new Intent(MainActivity.this, UpdateUserImageFirestoreActivity.class);
+                startActivity(intent);
+                //finish();
+            }
+        });
+
         firestoreDatabaseSelectUserRv = findViewById(R.id.btnMainFirestoreSelectUserRv   );
         firestoreDatabaseSelectUserRv.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -294,6 +307,7 @@ public class MainActivity extends AppCompatActivity {
         databaseListUserRv.setEnabled(isSignedIn);
         databaseSendMessage.setEnabled(isSignedIn);
         firestoreDatabaseUserProfile.setEnabled(isSignedIn);
+        firestoreDatabaseUpdateUserImage.setEnabled(isSignedIn);
         firestoreDatabaseSelectUser.setEnabled(isSignedIn);
         firestoreDatabaseSelectUserRv.setEnabled(isSignedIn);
         firestoreDatabaseChatMessage.setEnabled(isSignedIn);
