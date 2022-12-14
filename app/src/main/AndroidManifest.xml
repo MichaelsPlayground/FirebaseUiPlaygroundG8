@@ -27,7 +27,7 @@
         android:theme="@style/Theme.FirebaseUiPlayground"
         tools:targetApi="31">
         <activity
-            android:name=".ListResizedImagesRecyclerviewActivity"
+            android:name=".storage.ListResizedImagesRecyclerviewActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
@@ -41,14 +41,14 @@
                 android:value="" />
         </activity>
         <activity
-            android:name=".UpdateUserImageDatabaseActivity"
+            android:name=".database.UpdateUserImageDatabaseActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
-            android:name=".UpdateUserImageFirestoreActivity"
+            android:name=".firestore.UpdateUserImageFirestoreActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
@@ -70,21 +70,21 @@
                 android:value="" />
         </activity>
         <activity
-            android:name=".ChatDatabaseActivity"
+            android:name=".database.ChatDatabaseActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
-            android:name=".DatabaseUserActivity"
+            android:name=".database.DatabaseUserActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
-            android:name=".FirestoreDatabaseUserActivity"
+            android:name=".firestore.FirestoreDatabaseUserActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
@@ -98,7 +98,7 @@
                 android:value="" />
         </activity>
         <activity
-            android:name=".SelectUserFirestoreActivity"
+            android:name=".firestore.SelectUserFirestoreActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
@@ -119,21 +119,21 @@
                 android:value="" />
         </activity>
         <activity
-            android:name=".UploadImageActivity"
+            android:name=".storage.UploadImageActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
-            android:name=".UploadImageCroppedActivity"
+            android:name=".storage.UploadImageCroppedActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
-            android:name=".UploadImageResizedActivity"
+            android:name=".storage.UploadImageResizedActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
@@ -147,7 +147,7 @@
                 android:value="" />
         </activity>
         <activity
-            android:name=".ListImagesActivity"
+            android:name=".storage.ListImagesActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"

@@ -1,4 +1,4 @@
-package com.firebase.uidemo;
+package com.firebase.uidemo.storage;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.firebase.uidemo.R;
 
 import java.util.ArrayList;
 

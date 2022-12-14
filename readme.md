@@ -6,17 +6,25 @@ based on the samplecode in https://github.com/firebase/FirebaseUI-Android
 
 https://firebase.google.com/docs/auth
 
+https://firebaseopensource.com/projects/firebase/firebaseui-android/auth/readme
+
 **Realtime database** 
 
 https://firebase.google.com/docs/database
+
+https://firebaseopensource.com/projects/firebase/firebaseui-android/database/readme/
 
 **Cloud Firestore**
 
 https://firebase.google.com/docs/firestore
 
+https://firebaseopensource.com/projects/firebase/firebaseui-android/firestore/readme
+
 **Storage**
 
 https://firebase.google.com/docs/storage
+
+https://firebaseopensource.com/projects/firebase/firebaseui-android/storage/readme
 
 https://www.geeksforgeeks.org/how-to-populate-recyclerview-with-firebase-data-using-firebaseui-in-android-studio/
 

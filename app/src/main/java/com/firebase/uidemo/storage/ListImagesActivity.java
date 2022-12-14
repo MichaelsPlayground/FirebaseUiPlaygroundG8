@@ -1,4 +1,4 @@
-package com.firebase.uidemo;
+package com.firebase.uidemo.storage;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -17,6 +17,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.firebase.uidemo.ImageActivity;
+import com.firebase.uidemo.MainActivity;
+import com.firebase.uidemo.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;

@@ -1,4 +1,4 @@
-package com.firebase.uidemo;
+package com.firebase.uidemo.database;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,6 +16,8 @@ import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.firebase.uidemo.MessageHolder;
+import com.firebase.uidemo.R;
 import com.firebase.uidemo.models.MessageModel;
 import com.firebase.uidemo.models.UserModel;
 import com.google.android.gms.tasks.OnCompleteListener;

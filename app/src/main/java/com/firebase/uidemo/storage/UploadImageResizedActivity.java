@@ -1,11 +1,13 @@
-package com.firebase.uidemo;
+package com.firebase.uidemo.storage;
 
 import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.View;
@@ -16,10 +18,11 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.firebase.uidemo.MainActivity;
+import com.firebase.uidemo.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -30,9 +33,9 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.theartofdev.edmodo.cropper.CropImage;
-import com.theartofdev.edmodo.cropper.CropImageView;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Objects;
 
 /**
@@ -40,7 +43,7 @@ import java.util.Objects;
  * This is the same code as used in FirebasePlaygound
  */
 
-public class UploadImageCroppedActivity extends AppCompatActivity {
+public class UploadImageResizedActivity extends AppCompatActivity {
 
     com.google.android.material.textfield.TextInputEditText signedInUser;
     com.google.android.material.textfield.TextInputEditText edtLinkToImage;
@@ -54,6 +57,7 @@ public class UploadImageCroppedActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseStorage mStorage;
     final static String IMAGE_STORAGE_FOLDER = "photos";
+    final static String IMAGE_STORAGE_FOLDER_RESIZED = "photos_resized";
     private UploadTask uploadTask;
 
     private Uri selectedImageFileUri = null;
@@ -65,11 +69,13 @@ public class UploadImageCroppedActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_upload_image_cropped);
+        setContentView(R.layout.activity_upload_image_resized);
 
-        signedInUser = findViewById(R.id.etUploadImageCroppedSignedInUser);
-        progressBar = findViewById(R.id.pbUploadImageCropped);
-        edtLinkToImage = findViewById(R.id.etUploadImageCroppedLinkToImage);
+        signedInUser = findViewById(R.id.etUploadImageResizedSignedInUser);
+        progressBar = findViewById(R.id.pbUploadImageResized);
+        edtLinkToImage = findViewById(R.id.etUploadImageResizedLinkToImage);
+
+
 
         // don't show the keyboard on startUp
         //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
@@ -88,18 +94,19 @@ public class UploadImageCroppedActivity extends AppCompatActivity {
 
                         // try to get a filename from that uri
                         selectedImageFileName = queryNameFromUri(this.getContentResolver(), selectedImageFileUri);
+                        long selectedImageSize = queryFilesizeFromUri(this.getContentResolver(), selectedImageFileUri);
                         edtLinkToImage.setText("URI: " + selectedImageFileUri.toString()
-                                + "\nFilename: " + selectedImageFileName);
+                                + "\nFilename: " + selectedImageFileName
+                        + "\nFileSize before resizing: " + String.valueOf(selectedImageSize));
                         //uploadFromUri(fileUri);
-                        resizeImage(fileUri);
-                        //uploadImage.setEnabled(true);
+                        uploadImage.setEnabled(true);
                     } else {
                         Log.w(TAG, "File URI is null");
                     }
                 });
 
-        Button selectImage = findViewById(R.id.btnUploadImageCroppedSelectImage);
-        Button backToMain = findViewById(R.id.btnUploadImageCroppedToMain);
+        Button selectImage = findViewById(R.id.btnUploadImageResizedSelectImage);
+        Button backToMain = findViewById(R.id.btnUploadImageResizedToMain);
 
         selectImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -114,13 +121,13 @@ public class UploadImageCroppedActivity extends AppCompatActivity {
         backToMain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(UploadImageCroppedActivity.this, MainActivity.class);
+                Intent intent = new Intent(UploadImageResizedActivity.this, MainActivity.class);
                 startActivity(intent);
                 finish();
             }
         });
 
-        uploadImage = findViewById(R.id.btnUploadImageCroppedSend);
+        uploadImage = findViewById(R.id.btnUploadImageResizedSend);
         uploadImage.setEnabled(false); // default
         uploadImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -129,27 +136,6 @@ public class UploadImageCroppedActivity extends AppCompatActivity {
                 uploadImage(selectedImageFileUri, selectedImageFileName);
             }
         });
-    }
-
-    private void resizeImage(Uri data) {
-        CropImage.activity(data)
-                .setMultiTouchEnabled(true)
-                .setAspectRatio(1 , 1)
-                .setGuidelines(CropImageView.Guidelines.ON)
-                //.setMaxCropResultSize(512, 512)
-                //.setOutputCompressQuality(50)
-                .start(this);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
-            CropImage.ActivityResult result = CropImage.getActivityResult(data);
-            //profileImageView.setImageURI(result.getUri());
-            uploadImage(result.getUri(), selectedImageFileName);
-        }
     }
 
     private void uploadImage(Uri selectedImageFileUri, String selectedImageFileName) {
@@ -192,6 +178,67 @@ public class UploadImageCroppedActivity extends AppCompatActivity {
                 edtLinkToImage.setText("upload success");
             }
         });
+        // here we are uploading the resized version
+        // solution taken from https://stackoverflow.com/a/56761434/8166854
+        // aiming for ~500kb max. assumes typical device image size is around 2megs
+        int scaleDivider = 4;
+        try {
+
+            // 1. Convert uri to bitmap
+            Uri imageUri = selectedImageFileUri;
+            Bitmap fullBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+
+            // 2. Get the downsized image content as a byte[]
+            /*
+            // using a fixed scaleDivider, e.g. 4
+            int scaleWidth = fullBitmap.getWidth() / scaleDivider;
+            int scaleHeight = fullBitmap.getHeight() / scaleDivider;
+            */
+
+            // 2.b or get a fixed size, e.g. width max 300 px
+            if (fullBitmap.getWidth() > 300) {
+                scaleDivider = fullBitmap.getWidth() / 300;
+            }
+
+            // 2. Get the downsized image content as a byte[]
+            int scaleWidth = fullBitmap.getWidth() / scaleDivider;
+            int scaleHeight = fullBitmap.getHeight() / scaleDivider;
+            byte[] downsizedImageBytes =
+                    getDownsizedImageBytes(fullBitmap, scaleWidth, scaleHeight);
+
+            // 3. Upload the byte[]; Eg, if you are using Firebase
+            //StorageReference storageReference = FirebaseStorage.getInstance().getReference("/somepath");
+            String filenameResizedFull = IMAGE_STORAGE_FOLDER_RESIZED + "/" + selectedImageFileName;
+            Log.i(TAG, "uploadResizedImage to " + filenameResizedFull);
+            // Create a reference to 'images/mountains.jpg'
+            StorageReference storageReference = mStorage.getReference().child(filenameResizedFull);
+            storageReference.putBytes(downsizedImageBytes)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            Log.i(TAG,"success in upload the resized image");
+                            showMessageDialog("Upload resized image success", "the upload was successful");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.e(TAG,"failure in upload the resized image");
+                        }
+                    });
+        }
+        catch (IOException ioEx) {
+            ioEx.printStackTrace();
+        }
+    }
+
+    private byte[] getDownsizedImageBytes(Bitmap fullBitmap, int scaleWidth, int scaleHeight) throws IOException {
+        Bitmap scaledBitmap = Bitmap.createScaledBitmap(fullBitmap, scaleWidth, scaleHeight, true);
+        // 2. Instantiate the downsized image content as a byte[]
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        byte[] downsizedImageBytes = baos.toByteArray();
+        return downsizedImageBytes;
     }
 
     /**
@@ -208,6 +255,23 @@ public class UploadImageCroppedActivity extends AppCompatActivity {
         String name = returnCursor.getString(nameIndex);
         returnCursor.close();
         return name;
+    }
+
+    /**
+     * gets the filename of the image
+     * https://developer.android.com/training/secure-file-sharing/retrieve-info.html
+     * https://stackoverflow.com/a/38304115/8166854
+     */
+    private long queryFilesizeFromUri(ContentResolver resolver, Uri uri) {
+        Cursor returnCursor =
+                resolver.query(uri, null, null, null, null);
+        assert returnCursor != null;
+        int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
+        returnCursor.moveToFirst();
+        long fileSize = returnCursor.getLong(sizeIndex);
+        //String name = returnCursor.getString(nameIndex);
+        returnCursor.close();
+        return fileSize;
     }
 
     @Override

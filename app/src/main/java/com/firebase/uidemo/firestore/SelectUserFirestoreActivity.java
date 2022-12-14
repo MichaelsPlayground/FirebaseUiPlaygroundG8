@@ -1,4 +1,4 @@
-package com.firebase.uidemo;
+package com.firebase.uidemo.firestore;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,6 +16,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.firebase.uidemo.MainActivity;
+import com.firebase.uidemo.R;
 import com.firebase.uidemo.models.UserFirestoreModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;

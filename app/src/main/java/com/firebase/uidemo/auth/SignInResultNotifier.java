@@ -1,4 +1,4 @@
-package com.firebase.uidemo;
+package com.firebase.uidemo.auth;
 
 import android.content.Context;
 import android.widget.Toast;

@@ -1,4 +1,4 @@
-package com.firebase.uidemo;
+package com.firebase.uidemo.firestore;
 
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.firebase.uidemo.R;
 import com.firebase.uidemo.models.MessageModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;

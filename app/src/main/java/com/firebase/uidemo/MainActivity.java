@@ -11,6 +11,16 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
+import com.firebase.uidemo.database.DatabaseUserActivity;
+import com.firebase.uidemo.database.UpdateUserImageDatabaseActivity;
+import com.firebase.uidemo.firestore.FirestoreDatabaseUserActivity;
+import com.firebase.uidemo.firestore.SelectUserFirestoreActivity;
+import com.firebase.uidemo.firestore.UpdateUserImageFirestoreActivity;
+import com.firebase.uidemo.storage.ListImagesActivity;
+import com.firebase.uidemo.storage.ListResizedImagesRecyclerviewActivity;
+import com.firebase.uidemo.storage.UploadImageActivity;
+import com.firebase.uidemo.storage.UploadImageCroppedActivity;
+import com.firebase.uidemo.storage.UploadImageResizedActivity;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;

@@ -1,4 +1,4 @@
-package com.firebase.uidemo;
+package com.firebase.uidemo.storage;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -15,6 +15,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.firebase.uidemo.MainActivity;
+import com.firebase.uidemo.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -76,6 +78,7 @@ public class ListResizedImagesRecyclerviewActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Log.i(TAG, "listResizedImages start");
+                // code taken from https://www.geeksforgeeks.org/how-to-view-all-the-uploaded-images-in-firebase-storage/
                 //showProgressBar();
                 StorageReference listRef = mStorageRef.child("photos_resized");
 
