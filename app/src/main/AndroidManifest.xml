@@ -41,7 +41,7 @@
                 android:value="" />
         </activity>
         <activity
-            android:name=".UploadImageDatabaseActivity"
+            android:name=".database.UploadImageDatabaseActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
@@ -98,7 +98,7 @@
                 android:value="" />
         </activity>
         <activity
-            android:name=".ListUserDatabaseActivity"
+            android:name=".database.ListUserDatabaseActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
@@ -112,7 +112,7 @@
                 android:value="" />
         </activity>
         <activity
-            android:name=".ListUserDatabaseRecyclerviewActivity"
+            android:name=".database.ListUserDatabaseRecyclerviewActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"

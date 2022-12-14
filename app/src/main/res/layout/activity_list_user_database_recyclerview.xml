@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/grey_300"
     android:orientation="vertical"
-    tools:context=".ListUserDatabaseRecyclerviewActivity">
+    tools:context=".database.ListUserDatabaseRecyclerviewActivity">
 
     <TextView
         android:layout_width="match_parent"

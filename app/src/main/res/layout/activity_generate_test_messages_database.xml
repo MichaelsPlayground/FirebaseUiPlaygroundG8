@@ -7,7 +7,7 @@
     tools:context=".database.GenerateTestMessagesDatabaseActivity">
 
     <TextView
-        android:id="@+id/tvChatDatabaseHeader"
+        android:id="@+id/tvGenerateTestMessagesDatabaseHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -17,26 +17,26 @@
         android:textAlignment="center"
         android:textSize="16sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/rvChatDatabase"
+        app:layout_constraintBottom_toTopOf="@+id/rvGenerateTestMessagesDatabase"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvChatDatabase"
+        android:id="@+id/rvGenerateTestMessagesDatabase"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/etChatDatabaseMessageLayout"
+        app:layout_constraintBottom_toTopOf="@+id/etGenerateTestMessagesDatabaseMessageLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvChatDatabaseHeader"
+        app:layout_constraintTop_toBottomOf="@id/tvGenerateTestMessagesDatabaseHeader"
         tools:listitem="@layout/message" />
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/etChatDatabaseMessageLayout"
+        android:id="@+id/etGenerateTestMessagesDatabaseMessageLayout"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -59,7 +59,7 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etChatDatabaseMessage"
+            android:id="@+id/etGenerateTestMessagesDatabaseMessage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"

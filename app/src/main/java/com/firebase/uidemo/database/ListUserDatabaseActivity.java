@@ -1,19 +1,23 @@
-package com.firebase.uidemo;
+package com.firebase.uidemo.database;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.firebase.ui.database.FirebaseListAdapter;
+import com.firebase.ui.database.FirebaseListOptions;
+import com.firebase.uidemo.MainActivity;
+import com.firebase.uidemo.R;
 import com.firebase.uidemo.models.UserModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -22,29 +26,39 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
-public class ListUserDatabaseRecyclerviewActivity extends AppCompatActivity implements ItemClickListener {
+public class ListUserDatabaseActivity extends AppCompatActivity {
     // https://www.geeksforgeeks.org/how-to-populate-recyclerview-with-firebase-data-using-firebaseui-in-android-studio/
     com.google.android.material.textfield.TextInputEditText signedInUser;
 
-    static final String TAG = "ListUserDatabaseRv";
+    static final String TAG = "ListUserDatabase";
 
     private static String authUserId = "", authUserEmail, authDisplayName, authPhotoUrl;
+    boolean listAllUsers = true;
 
     private DatabaseReference mDatabase;
     private FirebaseAuth mFirebaseAuth;
-    private RecyclerView recyclerView;
-    UserModelAdapter adapter; // Create Object of the Adapter class
+
+    ListView userListView;
+    FirebaseListAdapter<UserModel> listAdapter;
     ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list_user_database_recyclerview);
+        setContentView(R.layout.activity_list_user_database);
 
-        signedInUser = findViewById(R.id.etListUserDatabaseRvSignedInUser);
-        progressBar = findViewById(R.id.pbListUserDatabaseRv);
+        signedInUser = findViewById(R.id.etListUserDatabaseSignedInUser);
+        progressBar = findViewById(R.id.pbListUserDatabase);
+        userListView = findViewById(R.id.lvListUserDatabase);
+
+        // read the intent and check if all users are displayed or only "other" user
+        // means leave the own userId data out
+        Intent intent = getIntent();
+        listAllUsers = intent.getBooleanExtra("ALL_USERS", true);
 
         // Initialize Firebase Auth
         mFirebaseAuth = FirebaseAuth.getInstance();
@@ -58,57 +72,82 @@ public class ListUserDatabaseRecyclerviewActivity extends AppCompatActivity impl
         // Create a instance of the database and get
         // its reference
         mDatabase = FirebaseDatabase.getInstance().getReference();
-        //DatabaseReference personsDatabase = mDatabase.child("persons");
         DatabaseReference usersDatabase = mDatabase.child("users");
-        recyclerView = findViewById(R.id.rvListUserDatabaseRv);
-        // To display the Recycler view linearlayout
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        usersDatabase.keepSynced(true);
 
-        // It is a class provide by the FirebaseUI to make a
-        // query in the database to fetch appropriate data
-        FirebaseRecyclerOptions<UserModel> options
-                = new FirebaseRecyclerOptions.Builder<UserModel>()
+        List<String> emailList = new ArrayList<>();
+        List<String> displayNameList = new ArrayList<>();
+
+        // this is the new way
+        FirebaseListOptions<UserModel> listAdapterOptions;
+        listAdapterOptions = new FirebaseListOptions.Builder<UserModel>()
+                .setLayout(android.R.layout.simple_list_item_1)
                 .setQuery(usersDatabase, UserModel.class)
                 .build();
-        // Connecting object of required Adapter class to
-        // the Adapter class itself
-        adapter = new UserModelAdapter(options);
-        adapter.setClickListener(this);
-        /*
-        // code from tutorial
-        // It is a class provide by the FirebaseUI to make a
-        // query in the database to fetch appropriate data
-        FirebaseRecyclerOptions<person> options
-                = new FirebaseRecyclerOptions.Builder<person>()
-                .setQuery(personsDatabase, person.class)
-                .build();
-        // Connecting object of required Adapter class to
-        // the Adapter class itself
-        adapter = new personAdapter(options);
-        */
-        // Connecting Adapter class with the Recycler view*/
-        recyclerView.setAdapter(adapter);
 
-        Button backToMain = findViewById(R.id.btnListUserDatabaseRvToMain);
+        listAdapter = new FirebaseListAdapter<UserModel>(listAdapterOptions) {
+            @Override
+            protected void populateView(@NonNull View v, @NonNull UserModel model, int position) {
+                String email = model.getUserMail();
+                String displayName = model.getUserName();
+                emailList.add(email);
+                displayNameList.add(displayName);
+                ((TextView) v.findViewById(android.R.id.text1)).setText(email);
+                listAdapter.notifyDataSetChanged();
+                // if the user is the authUser save email and displayName
+                //if ()
+                String uid = listAdapter.getRef(position).getKey();
+                Log.i(TAG, "uid/key: " + uid);
+                if (uid.equals(authUserId)) {
+                    authDisplayName = displayName;
+                    authUserEmail = email;
+                }
+            }
+        };
+        userListView.setAdapter(listAdapter);
+
+        Button backToMain = findViewById(R.id.btnListUserDatabaseToMain);
         backToMain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(ListUserDatabaseRecyclerviewActivity.this, MainActivity.class);
+                Intent intent = new Intent(ListUserDatabaseActivity.this, MainActivity.class);
                 startActivity(intent);
                 finish();
             }
         });
 
-        Button listUser = findViewById(R.id.btnListUserDatabaseRvRun);
+        Button listUser = findViewById(R.id.btnListUserDatabaseRun);
         listUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // todo start listening only if a user is signed in
-                adapter.startListening();
+                listAdapter.startListening();
             }
         });
 
-        // note: the onClick listener is implemented in UserModelAdapter
+        userListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                String listUserId = listAdapter.getRef(position).getKey();
+                if (!listAllUsers) {
+                    if (listUserId.equals(authUserId)) {
+                        // when not all users are listed avoid clicking yourself
+                        Toast.makeText(getApplicationContext(),
+                                "you cannot chat with yourself, choose another user",
+                                Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
+                Log.i(TAG, "userListView clicked on pos: " + position);
+                Intent intent = new Intent(ListUserDatabaseActivity.this, ChatDatabaseActivity.class);
+                intent.putExtra("UID", listAdapter.getRef(position).getKey());
+                intent.putExtra("EMAIL", emailList.get(position));
+                intent.putExtra("DISPLAYNAME", displayNameList.get(position));
+                intent.putExtra("AUTH_EMAIL", authUserEmail);
+                intent.putExtra("AUTH_DISPLAYNAME", authDisplayName);
+                startActivity(intent);
+                finish();
+            }
+        });
     }
 
     @Override
@@ -117,36 +156,21 @@ public class ListUserDatabaseRecyclerviewActivity extends AppCompatActivity impl
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mFirebaseAuth.getCurrentUser();
         if (currentUser != null) {
+            authUserId = currentUser.getUid();
             reload();
+            listAdapter.startListening();
         } else {
             signedInUser.setText("no user is signed in");
+            authUserId = "";
         }
-        //adapter.startListening();
     }
 
     // Function to tell the app to stop getting
     // data from database on stopping of the activity
-    @Override protected void onStop()
-    {
-        super.onStop();
-        adapter.stopListening();
-    }
-
-    // called when clicking on recyclerview
     @Override
-    public void onClick(View view, int position) {
-        Log.i(TAG, "recyclerview clicked on position: " + position);
-        /*
-        String uidSelected = uidList.get(position);
-        String emailSelected = emailList.get(position);
-        String displayNameSelected = displayNameList.get(position);
-        Intent intent = new Intent(ListUserRecyclerviewActivity.this, ChatActivity.class);
-        intent.putExtra("UID", uidSelected);
-        intent.putExtra("EMAIL", emailSelected);
-        intent.putExtra("DISPLAYNAME", displayNameSelected);
-        startActivity(intent);
-        finish();
-        */
+    protected void onStop() {
+        super.onStop();
+        listAdapter.stopListening();
     }
 
 
@@ -180,6 +204,7 @@ public class ListUserDatabaseRecyclerviewActivity extends AppCompatActivity impl
             signedInUser.setText(userData);
         } else {
             signedInUser.setText(null);
+            authUserId = "";
         }
     }
 
@@ -194,7 +219,6 @@ public class ListUserDatabaseRecyclerviewActivity extends AppCompatActivity impl
             progressBar.setVisibility(View.INVISIBLE);
         }
     }
-
 
 
 }
