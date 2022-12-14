@@ -27,6 +27,13 @@
         android:theme="@style/Theme.FirebaseUiPlayground"
         tools:targetApi="31">
         <activity
+            android:name=".database.GenerateTestMessagesDatabaseActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name=".storage.ListResizedImagesRecyclerviewActivity"
             android:exported="false">
             <meta-data

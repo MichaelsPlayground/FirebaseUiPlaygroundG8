@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.uidemo.database.DatabaseUserActivity;
+import com.firebase.uidemo.database.GenerateTestMessagesDatabaseActivity;
 import com.firebase.uidemo.database.UpdateUserImageDatabaseActivity;
 import com.firebase.uidemo.firestore.FirestoreDatabaseUserActivity;
 import com.firebase.uidemo.firestore.SelectUserFirestoreActivity;
@@ -35,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
     com.google.android.material.textfield.TextInputEditText signedInUser;
     Button signInWithEmailAndPassword;
     Button databaseUserProfile, databaseSendMessage, databaseListUser, databaseListUserRv;
-    Button databaseUpdateUserImage;
+    Button databaseUpdateUserImage, databaseGenerateTestMessages;
     Button firestoreDatabaseUserProfile, firestoreDatabaseSelectUser, firestoreDatabaseSelectUserRv;
     Button firestoreDatabaseUpdateUserImage;
     Button firestoreDatabaseChatMessage;
@@ -171,6 +172,17 @@ public class MainActivity extends AppCompatActivity {
                 //Intent intent = new Intent(MainActivity.this, ChatActivity.class);
                 Intent intent = new Intent(MainActivity.this, ListUserDatabaseActivity.class);
                 intent.putExtra("ALL_USERS", false);
+                startActivity(intent);
+                //finish();
+            }
+        });
+
+        databaseGenerateTestMessages = findViewById(R.id.btnMainDatabaseGenerateTestMessages);
+        databaseGenerateTestMessages.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "generate test messages in database");
+                Intent intent = new Intent(MainActivity.this, GenerateTestMessagesDatabaseActivity.class);
                 startActivity(intent);
                 //finish();
             }
@@ -326,6 +338,7 @@ public class MainActivity extends AppCompatActivity {
         databaseListUser.setEnabled(isSignedIn);
         databaseListUserRv.setEnabled(isSignedIn);
         databaseSendMessage.setEnabled(isSignedIn);
+        databaseGenerateTestMessages.setEnabled(isSignedIn);
         firestoreDatabaseUserProfile.setEnabled(isSignedIn);
         firestoreDatabaseUpdateUserImage.setEnabled(isSignedIn);
         firestoreDatabaseSelectUser.setEnabled(isSignedIn);
