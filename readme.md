@@ -4,7 +4,19 @@ based on the samplecode in https://github.com/firebase/FirebaseUI-Android
 
 **Authentication** allows log-in with Email-Password and Google account
 
+https://firebase.google.com/docs/auth
 
+**Realtime database** 
+
+https://firebase.google.com/docs/database
+
+**Cloud Firestore**
+
+https://firebase.google.com/docs/firestore
+
+**Storage**
+
+https://firebase.google.com/docs/storage
 
 https://www.geeksforgeeks.org/how-to-populate-recyclerview-with-firebase-data-using-firebaseui-in-android-studio/
 

@@ -5,20 +5,17 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -28,7 +25,6 @@ import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 public class ListResizedImagesRecyclerviewActivity extends AppCompatActivity {
@@ -40,11 +36,15 @@ public class ListResizedImagesRecyclerviewActivity extends AppCompatActivity {
     static final String TAG = "ListResizedImages";
     // get the data from auth
     private static String authUserId = "", authUserEmail, authDisplayName, authPhotoUrl;
-    ListView imagesListView;
+    RecyclerView imagesRecyclerView;
 
     private StorageReference mStorageRef;
     private FirebaseAuth mAuth;
     ProgressBar progressBar;
+
+    ImageAdapter adapter;
+    ArrayList<String> imageList;
+    ArrayList<String> imageNameList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +54,7 @@ public class ListResizedImagesRecyclerviewActivity extends AppCompatActivity {
         signedInUser = findViewById(R.id.etListResizedImagesSignedInUser);
         progressBar = findViewById(R.id.pbListResizedImages);
 
-        imagesListView = findViewById(R.id.lvListResizedImages);
+        imagesRecyclerView = findViewById(R.id.rvListResizedImages);
 
         // don't show the keyboard on startUp
         //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
@@ -66,80 +66,46 @@ public class ListResizedImagesRecyclerviewActivity extends AppCompatActivity {
         // init the storage
         mStorageRef = FirebaseStorage.getInstance().getReference();
 
+        imageList = new ArrayList<>();
+        imageNameList = new ArrayList<>();
+        adapter = new ImageAdapter(imageList, imageNameList, this);
+        imagesRecyclerView.setLayoutManager(new LinearLayoutManager(null));
+
         Button listImages = findViewById(R.id.btnListResizedImagesRun);
         listImages.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.i(TAG, "listImages start");
-                showProgressBar();
-                StorageReference listRef = mStorageRef.child("photos");
+                Log.i(TAG, "listResizedImages start");
+                //showProgressBar();
+                StorageReference listRef = mStorageRef.child("photos_resized");
 
-                List<String> arrayList = new ArrayList<>();
-                List<String> fileNameList = new ArrayList<>();
-                List<String> fileReferenceList = new ArrayList<>();
-                List<StorageReference> storageReferenceList = new ArrayList<>();
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(ListResizedImagesRecyclerviewActivity.this, android.R.layout.simple_list_item_1, arrayList);
-
-                listRef.listAll()
-                        .addOnSuccessListener(new OnSuccessListener<ListResult>() {
-                            @Override
-                            public void onSuccess(ListResult listResult) {
-                                Log.i(TAG, "listRef.listAll onSuccess");
-                                for (StorageReference prefix : listResult.getPrefixes()) {
-                                    // All the prefixes under listRef.
-                                    // You may call listAll() recursively on them.
-                                    //List<StorageReference> storagePrefixes;
-                                    //storagePrefixes = listResult.getPrefixes();
-                                    //arrayList.add(storagePrefixes.)
-                                }
-                                Log.i(TAG, "listResult.getItems size: " + listResult.getItems().size());
-                                for (StorageReference item : listResult.getItems()) {
-                                    // All the items under listRef.
-                                    String listEntry = "item: " + item.toString()
-                                            + "\nname: " + item.getName();
-                                    Log.i(TAG, "item: " + listEntry);
-                                    arrayList.add(listEntry);
-                                    fileReferenceList.add(item.toString());
-                                    fileNameList.add(item.getName());
-                                    arrayAdapter.notifyDataSetChanged();
-                                    storageReferenceList.add(item);
-                                }
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                // Uh-oh, an error occurred!
-                                Log.e(TAG, "listAllImages failure: " + e);
-                            }
-                        });
-                imagesListView.setAdapter(arrayAdapter);
-                hideProgressBar();
-
-                imagesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                listRef.listAll().addOnSuccessListener(new OnSuccessListener<ListResult>() {
                     @Override
-                    public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-
-                        StorageReference storageReference = storageReferenceList.get(position);
-                        storageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                            @Override
-                            public void onSuccess(Uri uri) {
-                                Uri dlUri = uri;
-                                Log.i(TAG, "downloadUri: " + dlUri.toString());
-                                Intent intent = new Intent(ListResizedImagesRecyclerviewActivity.this, ImageActivity.class);
-                                intent.putExtra("FILEREFERENCE", fileReferenceList.get(position));
-                                intent.putExtra("FILENAME", fileNameList.get(position));
-                                intent.putExtra("FILEURI", dlUri.toString());
-                                startActivity(intent);
-                                finish();
-                            }
-                        });
-
-
+                    public void onSuccess(ListResult listResult) {
+                        for (StorageReference file : listResult.getItems()) {
+                            file.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    imageList.add(uri.toString());
+                                    String[] paths = uri.getLastPathSegment().split("/");
+                                    imageNameList.add(paths[1]);
+                                    Log.e("Itemvalue", uri.toString());
+                                }
+                            }).addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    imagesRecyclerView.setAdapter(adapter);
+                                    progressBar.setVisibility(View.GONE);
+                                }
+                            });
+                        }
                     }
                 });
+
             }
         });
+        //hideProgressBar();
+
 
 /*
 list images
@@ -183,76 +149,6 @@ Glide.with(getApplicationContext())
       .load(completeStorageRefranceToImage)
       .into(imageView);
  */
-
-        Button listImagesPaginated = findViewById(R.id.btnListResizedImagesPageRun);
-        listImagesPaginated.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.i(TAG, "listImagesPaginated start");
-                showProgressBar();
-                StorageReference listRef = mStorageRef.child("photos");
-
-                List<String> arrayList = new ArrayList<>();
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(ListResizedImagesRecyclerviewActivity.this, android.R.layout.simple_list_item_1, arrayList);
-
-                listRef.listAll()
-                        .addOnSuccessListener(new OnSuccessListener<ListResult>() {
-                            @Override
-                            public void onSuccess(ListResult listResult) {
-                                Log.i(TAG, "listRef.listAll onSuccess");
-                                for (StorageReference prefix : listResult.getPrefixes()) {
-                                    // All the prefixes under listRef.
-                                    // You may call listAll() recursively on them.
-                                    //List<StorageReference> storagePrefixes;
-                                    //storagePrefixes = listResult.getPrefixes();
-                                    //arrayList.add(storagePrefixes.)
-                                }
-                                Log.i(TAG, "listResult.getItems size: " + listResult.getItems().size());
-                                for (StorageReference item : listResult.getItems()) {
-                                    // All the items under listRef.
-                                    String listEntry = "item: " + item.toString()
-                                            + " name: " + item.getName()
-                                            + " bucket: " + item.getBucket();
-                                    Log.i(TAG, "item: " + listEntry);
-                                    arrayList.add(listEntry);
-                                    arrayAdapter.notifyDataSetChanged();
-                                }
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                // Uh-oh, an error occurred!
-                                Log.e(TAG, "listAllImages failure: " + e);
-                            }
-                        });
-                imagesListView.setAdapter(arrayAdapter);
-
-                //List<String> arrayList = new ArrayList<>();
-                List<String> uidList = new ArrayList<>();
-                List<String> emailList = new ArrayList<>();
-                List<String> displayNameList = new ArrayList<>();
-
-
-                hideProgressBar();
-
-                imagesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                        String uidSelected = uidList.get(position);
-                        String emailSelected = emailList.get(position);
-                        String displayNameSelected = displayNameList.get(position);
-                        Intent intent = new Intent(ListResizedImagesRecyclerviewActivity.this, MainActivity.class);
-                        intent.putExtra("UID", uidSelected);
-                        intent.putExtra("EMAIL", emailSelected);
-                        intent.putExtra("DISPLAYNAME", displayNameSelected);
-                        startActivity(intent);
-                        finish();
-                    }
-                });
-            }
-        });
-
         Button backToMain = findViewById(R.id.btnListResizedImagesToMain);
 
         backToMain.setOnClickListener(new View.OnClickListener() {
@@ -263,38 +159,6 @@ Glide.with(getApplicationContext())
                 finish();
             }
         });
-    }
-
-    public void listAllPaginated(@Nullable String pageToken) {
-        FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference listRef = storage.getReference().child("files/uid");
-
-        // Fetch the next page of results, using the pageToken if we have one.
-        Task<ListResult> listPageTask = pageToken != null
-                ? listRef.list(100, pageToken)
-                : listRef.list(100);
-
-        listPageTask
-                .addOnSuccessListener(new OnSuccessListener<ListResult>() {
-                    @Override
-                    public void onSuccess(ListResult listResult) {
-                        List<StorageReference> prefixes = listResult.getPrefixes();
-                        List<StorageReference> items = listResult.getItems();
-
-                        // Process page of results
-                        // ...
-
-                        // Recurse onto next page
-                        if (listResult.getPageToken() != null) {
-                            listAllPaginated(listResult.getPageToken());
-                        }
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        // Uh-oh, an error occurred.
-                    }
-                });
     }
 
     @Override
