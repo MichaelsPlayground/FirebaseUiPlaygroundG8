@@ -1,4 +1,4 @@
-package com.firebase.uidemo;
+package com.firebase.uidemo.database;
 
 import android.graphics.PorterDuff;
 import android.graphics.drawable.GradientDrawable;
@@ -10,6 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.firebase.uidemo.R;
 import com.firebase.uidemo.models.MessageModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;

@@ -1,4 +1,4 @@
-package com.firebase.uidemo;
+package com.firebase.uidemo.database;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.firebase.uidemo.ItemClickListener;
+import com.firebase.uidemo.R;
 import com.firebase.uidemo.models.UserModel;
 
 // FirebaseRecyclerAdapter is a class provided by

@@ -14,6 +14,8 @@ https://firebase.google.com/docs/database
 
 https://firebaseopensource.com/projects/firebase/firebaseui-android/database/readme/
 
+https://www.geeksforgeeks.org/endless-recyclerview-in-android/
+
 **Cloud Firestore**
 
 https://firebase.google.com/docs/firestore

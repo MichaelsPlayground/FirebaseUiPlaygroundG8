@@ -17,7 +17,6 @@ import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.firebase.uidemo.ItemClickListener;
 import com.firebase.uidemo.MainActivity;
 import com.firebase.uidemo.R;
-import com.firebase.uidemo.UserModelAdapter;
 import com.firebase.uidemo.models.UserModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
