@@ -1,4 +1,4 @@
-package com.firebase.uidemo;
+package com.firebase.uidemo.firestore;
 
 import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
@@ -9,12 +9,10 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -22,24 +20,19 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.firebase.uidemo.MessageFirestoreHolder;
+import com.firebase.uidemo.R;
 import com.firebase.uidemo.models.MessageModel;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 public class ChatMessageFirestoreActivity extends AppCompatActivity {
 
@@ -102,7 +95,7 @@ public class ChatMessageFirestoreActivity extends AppCompatActivity {
         String receiveUserString = "Email: " + receiveUserEmail;
         receiveUserString += "\nUID: " + receiveUserId;
         receiveUserString += "\nDisplay Name: " + receiveUserDisplayName;
-        chatHeader.setText("Chat with " + receiveUserDisplayName);
+        chatHeader.setText("FS Chat with " + receiveUserDisplayName);
         Log.i(TAG, "receiveUser: " + receiveUserString);
 
         queryList();

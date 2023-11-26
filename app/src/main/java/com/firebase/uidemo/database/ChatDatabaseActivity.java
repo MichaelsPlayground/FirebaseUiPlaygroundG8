@@ -263,7 +263,7 @@ public class ChatDatabaseActivity extends AppCompatActivity implements FirebaseA
                 + " and " + receiveUserId + " (" + receiveUserDisplayName + ")"
                 + " in room " + roomId;
          */
-        String  conversationString = "chat with " + receiveUserDisplayName;
+        String  conversationString = "DB chat with " + receiveUserDisplayName;
         header.setText(conversationString);
         Log.i(TAG, conversationString);
 

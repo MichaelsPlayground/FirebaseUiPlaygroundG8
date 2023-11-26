@@ -10,10 +10,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class MessageFirestoreHolder extends RecyclerView.ViewHolder {
 
-    TextView messageView;
-    TextView messageTimeView;
-    LinearLayout mMessageLayout;
-    RelativeLayout mMessageContainer;
+    public TextView messageView;
+    public TextView messageTimeView;
+    public LinearLayout mMessageLayout;
+    public RelativeLayout mMessageContainer;
 
     public MessageFirestoreHolder(@NonNull View itemView) {
         super(itemView);

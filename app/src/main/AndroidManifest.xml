@@ -119,7 +119,7 @@
                 android:value="" />
         </activity>
         <activity
-            android:name=".ChatMessageFirestoreActivity"
+            android:name=".firestore.ChatMessageFirestoreActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
