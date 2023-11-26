@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Firebase UI Playground</string>
+    <string name="app_name">Firebase UI Playground G8</string>
     <string name="returned_from_app_settings_to_activity">
         Returned from app settings to MainActivity with the following permissions:
         \n\nRead external storage: %s

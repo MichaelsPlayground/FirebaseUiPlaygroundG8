@@ -40,6 +40,19 @@ Realtime Database rules (**Note: these rules are insecure**):
 }
 ```
 
+Firestore Database rules:
+```plaintext
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
+```
+
+
 Storage tutorial: https://firebasetutorials.com/use-firebase-storage/
 
 Source code: https://github.com/Waqas334/LearningCloudStorage 
