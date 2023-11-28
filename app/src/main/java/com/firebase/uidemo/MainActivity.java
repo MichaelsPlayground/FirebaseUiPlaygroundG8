@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize Firebase Auth
         mFirebaseAuth = FirebaseAuth.getInstance();
-        // set the persistance first
+        // set the persistence first
         //FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         //FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
