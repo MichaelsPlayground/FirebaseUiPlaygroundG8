@@ -39,7 +39,7 @@ import java.util.Objects;
 
 /**
  * FirebaseUI does not provide a method to UPLOAD images, just for downloading
- * This is the same code as used in FirebasePlaygound
+ * This is the same code as used in FirebasePlayground
  */
 
 public class UploadImageCroppedActivity extends AppCompatActivity {
